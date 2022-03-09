@@ -69,6 +69,8 @@ if __name__ == '__main__':
     head.load_state_dict(checkpoint['head'])
     model = model.cuda().eval()
     head = head.cuda().eval()
+    # for name, parameter in model.named_parameters():
+    #     print(name, parameter.shape)
 
     correct = 0
     total = 0

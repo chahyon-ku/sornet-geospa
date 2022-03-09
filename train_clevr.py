@@ -77,7 +77,7 @@ def log(
 def train(rank, args):
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = args.port
-    dist.init_process_group('nccl', rank=rank, world_size=args.n_gpu)
+    dist.init_process_group('gloo', rank=rank, world_size=args.n_gpu)
     torch.cuda.set_device(rank)
 
     train_data = CLEVRDataset(
