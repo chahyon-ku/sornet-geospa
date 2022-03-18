@@ -44,12 +44,12 @@ relation_phrases = {
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('scene_id', type=int)
-    parser.add_argument('relation')
-    parser.add_argument('obj1')
-    parser.add_argument('obj2')
-    parser.add_argument('--data_dir')
-    parser.add_argument('--split')
+    parser.add_argument('--scene_id', type=int, default=1)
+    parser.add_argument('--relation', default='left')
+    parser.add_argument('--obj1', default='small_blue_rubber_sphere')
+    parser.add_argument('--obj2', default='small_purple_rubber_cylinder')
+    parser.add_argument('--data_dir', default='data/clevr_cogent')
+    parser.add_argument('--split', default='valA')
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
     # Model
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     parser.add_argument('--layers', type=int, default=12)
     parser.add_argument('--heads', type=int, default=12)
     parser.add_argument('--d_hidden', type=int, default=512)
-    parser.add_argument('--checkpoint')
+    parser.add_argument('--checkpoint', default='models/clevr_cogent.pth')
     args = parser.parse_args()
 
     if args.relation not in relations:
@@ -80,12 +80,16 @@ if __name__ == '__main__':
     patch_tensors = torch.stack(
         [normalize_rgb(obj1_patch), normalize_rgb(obj2_patch)]
     ).unsqueeze(0)
+    print(obj1_patch)
+    print(np.resize(obj1_patch, (96, 96)))
+    print(patch_tensors.shape)
 
     scene_h5 = h5py.File(f'{args.data_dir}/{args.split}.h5')
     scene = scene_h5[f'{args.scene_id:06d}']
     objects = {
         obj: i for i, obj in enumerate(scene['objects'][()].decode().split(','))
     }
+    print(objects.keys())
     if args.obj1 not in objects:
         print(f'{args.obj1} not in the scene. Prediction may be arbitrary.')
     else:

@@ -8,3 +8,5 @@ dependencies:
   - tqdm
   - h5py
   - tensorboardX
+  - matplotlib
+  - tensorflow
