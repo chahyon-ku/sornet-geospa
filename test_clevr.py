@@ -36,6 +36,7 @@ from tqdm import tqdm
 import argparse
 import torch
 import tensorboardX
+import time
 
 
 def log(
@@ -95,19 +96,19 @@ if __name__ == '__main__':
     # for name, parameter in model.named_parameters():
     #     print(name, parameter.shape)
 
-    writer = tensorboardX.SummaryWriter('log/clevr_test')
+    writer = tensorboardX.SummaryWriter('log/clevr_test/' + str(int(time.time())))
 
     correct = 0
     total = 0
-    i = 0
+    batch_i = 0
     normalize_inverse = datasets.NormalizeInverse(
         mean=[0.48145466, 0.4578275, 0.40821073],
         std=[0.26862954, 0.26130258, 0.27577711]
     )
-    relations = {'left': 0, 'right': 1, 'front': 2, 'behind': 3}
+    relations = ['left', 'right', 'front', 'behind']
     relation_phrases = {
-        'left': 'to the left of',
-        'right': 'to the right of',
+        'left': 'left of',
+        'right': 'right of',
         'front': 'in front of',
         'behind': 'behind'
     }
@@ -120,62 +121,83 @@ if __name__ == '__main__':
             pred = (logits > 0).int().cpu()
         target = target.int()
 
-        mask = mask.bool()
+        mask = numpy.array(mask.bool().cpu(), dtype=bool)
+        max_obj_i = numpy.zeros(obj_patches.shape[0], dtype=int)
+        for img_i in range(obj_patches.shape[0]):
+            for obj_i in range(10):
+                if (numpy.array(obj_patches[img_i, obj_i].cpu()).swapaxes(-1, -3) != numpy.array([0, 0, 0])).any():
+                    max_obj_i[img_i] = obj_i
+
         correct += (pred[mask] == target[mask]).sum().item()
         total += mask.sum().item()
 
         index = 0
-        obj1_index = 0
-        obj2_index = 1
-        relation = 0
-        img_raw = datasets.denormalize_rgb(img[0].cpu())
+        img_raw = datasets.denormalize_rgb(img[index].cpu())
         fig, (a0, a1, a2) = plt.subplots(
-            1, 3, figsize=(15, 5), gridspec_kw={'width_ratios': [7, 2, 4]}
+            1, 3, figsize=(15, 10), gridspec_kw={'width_ratios': [7, 2, 4]}
         )
         a0.imshow(img_raw)
         a0.set_title('Input image', fontsize=18)
         a0.axis('off')
-        obj_img = numpy.ones((224, 96, 3)).astype('uint8') * 255
-        obj_img[:96] = numpy.array(datasets.denormalize_rgb(obj_patches[index][obj1_index]).resize((96, 96)))
-        obj_img[128:] = numpy.array(datasets.denormalize_rgb(obj_patches[index][obj2_index]).resize((96, 96)))
+
+        obj_img = numpy.ones((320, 32, 3)).astype('uint8') * 255
+        for i in range(5):
+            obj_img[32 * (2 * i):32 * (2 * i + 1), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i]))
+            obj_img[32 * (2 * i + 1):32 * (2 * i + 2), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i + 1]))
         a1.imshow(obj_img)
         a1.set_title('Query Object', fontsize=18)
         a1.axis('off')
 
-        rel_phrase = relation_phrases['left']
-        q_text = f"Is the {obj1_index} {rel_phrase}" \
-                 f" the {obj2_index}?"
-        q_text = q_text.split()
-        q1 = ' '.join(q_text[:len(q_text) // 2])
-        q2 = ' '.join(q_text[len(q_text) // 2:])
-        a2.set_title('Question', fontsize=18)
-        a2.text(0.5, 0.85, q1, fontsize=16, ha='center', va='center')
-        a2.text(0.5, 0.75, q2, fontsize=16, ha='center', va='center')
-
-        print(logits.shape)
+        target = target[index].reshape(len(relations), -1)
         pred = logits[index].reshape(len(relations), -1)
-        print(pred.shape)
-        pred = pred[relation][0] > 0
-        print(pred.shape)
-        pred_text = 'Yes' if pred else 'No'
-        a2.text(0.5, 0.5 * relation, 'Answer', fontsize=18, ha='center', va='center')
-        a2.text(0.5, 0.2 + 0.5 * relation, f'SORNet: {pred_text}', fontsize=16, ha='center', va='center')
+        mask = mask[index].reshape(len(relations), -1)
+        row_count = 0
+        pair_count = -1
+        for obj1_i in range(max_obj_i[0]):
+            for obj2_i in range(max_obj_i[0]):
+                if obj1_i == obj2_i:
+                    continue
+                pair_count += 1
+                # if (obj_img[32 * obj1_i:32 * (obj1_i + 1)] == numpy.array([122, 116, 104])).all()\
+                #         or (obj_img[32 * obj2_i:32 * (obj2_i + 1)] == numpy.array([122, 116, 104])).all():
+                #     continue
+                for rel_i in range(4):
+                    rel_mask = mask[rel_i][pair_count] > 0
+                    rel_pred = pred[rel_i][pair_count] > 0
+                    rel_true = target[rel_i][pair_count] > 0
+                    if not rel_mask or (not rel_pred and not rel_true):
+                        continue
+
+                    rel = relations[rel_i]
+                    rel_phrase = relation_phrases[rel]
+                    pred_text = '' if rel_pred else 'not '
+                    pred_text = pred_text + rel_phrase
+                    color = (0, 0, 0)
+                    if rel_pred and not rel_true: # false positive
+                        color = (1, 0, 0)
+                    elif not rel_pred and rel_true: # false negative
+                        color = (0, 0, 1)
+                    a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
+                    obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                    obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
+                    obj1_axis.axis('off')
+                    obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                    obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
+                    obj2_axis.axis('off')
+
+                    row_count += 1
         a2.axis('off')
         plt.tight_layout()
 
         io_buffer = io.BytesIO()
         fig_size = fig.get_size_inches() * fig.dpi
-        plt.show()
-        print(fig_size)
         fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
+
         io_buffer.seek(0)
         out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
-        print(out_img.shape)
-        out_img = numpy.reshape(out_img, (int(fig_size[0]), int(fig_size[1]), -1))
-        writer.add_image('img'+str(i), out_img)
-        print(obj_patches)
-        i += 1
-        break
+        out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
+        writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
+        batch_i += 1
 
     print('Total', total)
     print('Accuracy', correct / total * 100)

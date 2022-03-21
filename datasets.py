@@ -79,7 +79,7 @@ class CLEVRDataset(Dataset):
         self.obj_h5 = None
         self.scene_file = scene_file
         self.scene_h5 = None
-        with h5py.File(scene_file) as scene_h5:
+        with h5py.File(scene_file, 'r') as scene_h5:
             self.scenes = list(scene_h5.keys())
         self.max_nobj = max_nobj
         self.rand_patch = rand_patch
@@ -89,14 +89,16 @@ class CLEVRDataset(Dataset):
 
     def __getitem__(self, idx):
         if self.obj_h5 is None:
-            self.obj_h5 = h5py.File(self.obj_file)
+            self.obj_h5 = h5py.File(self.obj_file, 'r')
         if self.scene_h5 is None:
-            self.scene_h5 = h5py.File(self.scene_file)
+            self.scene_h5 = h5py.File(self.scene_file, 'r')
 
         scene = self.scene_h5[self.scenes[idx]]
         img = normalize_rgb(Image.open(BytesIO(scene['image'][()])).convert('RGB'))
 
         objects = scene['objects'][()].decode().split(',')
+        #objects = scene['objects'].asstr()[()].split(',')
+        #objects = scene['objects'][()].encode().split(',')
         obj_patches = []
         for obj in objects:
             patch_idx = 0
@@ -136,7 +138,7 @@ class LeonardoDataset(Dataset):
             self.sequences = list(n_frames.keys())
             n_frames = list(n_frames.values())
             self.cum_n_frames = np.cumsum(n_frames)
-        with h5py.File(f'{data_dir}/{split}.h5') as data:
+        with h5py.File(f'{data_dir}/{split}.h5', 'r') as data:
             all_predicates = data['predicates'][()].decode().split('|')
             pred_ids = {pred: i for i, pred in enumerate(all_predicates)}
             self.pred_ids = [pred_ids[pred] for pred in predicates]

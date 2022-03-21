@@ -1,12 +1,12 @@
 name: sornet
 channels:
-  - pytorch
+  - torch
   - defaults
 dependencies:
-  - torchvision
-  - pytorch
   - tqdm
   - h5py
-  - tensorboardX
   - matplotlib
-  - tensorflow
+  - tensorboardX
+  - cudatoolkit
+  - torchvision
+  - pytorch
