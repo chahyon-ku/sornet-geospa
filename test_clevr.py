@@ -57,8 +57,10 @@ def log(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/clevr_cogent/')
-    parser.add_argument('--split', default='valB')
+    # parser.add_argument('--data_dir', default='data/geospa/')
+    # parser.add_argument('--split', default='sample_2')
+    parser.add_argument('--data_dir', default='data/geospa/')
+    parser.add_argument('--split', default='train')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
@@ -70,8 +72,9 @@ if __name__ == '__main__':
     parser.add_argument('--d_hidden', type=int, default=512)
     parser.add_argument('--n_relation', type=int, default=4)
     # Evaluation
-    parser.add_argument('--checkpoint', default='models/clevr_cogent.pth')
-    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
+    parser.add_argument('--batch_size', type=int, default=100)
+    #parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--n_worker', type=int, default=2)
     args = parser.parse_args()
 
@@ -96,7 +99,7 @@ if __name__ == '__main__':
     # for name, parameter in model.named_parameters():
     #     print(name, parameter.shape)
 
-    writer = tensorboardX.SummaryWriter('log/clevr_test/' + str(int(time.time())))
+    writer = tensorboardX.SummaryWriter('log/geospa_test2/' + str(int(time.time())))
 
     correct = 0
     total = 0
@@ -105,12 +108,19 @@ if __name__ == '__main__':
         mean=[0.48145466, 0.4578275, 0.40821073],
         std=[0.26862954, 0.26130258, 0.27577711]
     )
-    relations = ['left', 'right', 'front', 'behind']
+    # relations = ['left', 'right', 'front', 'behind']
+    # relation_phrases = {
+    #     'left': 'left of',
+    #     'right': 'right of',
+    #     'front': 'in front of',
+    #     'behind': 'behind'
+    # }
+    relations = ['front', 'right', 'contain', 'support']
     relation_phrases = {
-        'left': 'left of',
-        'right': 'right of',
         'front': 'in front of',
-        'behind': 'behind'
+        'right': 'right of',
+        'contain': 'contains',
+        'support': 'supports'
     }
     for img, obj_patches, target, mask in tqdm(loader):
         img = img.cuda()
@@ -121,7 +131,7 @@ if __name__ == '__main__':
             pred = (logits > 0).int().cpu()
         target = target.int()
 
-        mask = numpy.array(mask.bool().cpu(), dtype=bool)
+        mask = mask.bool()
         max_obj_i = numpy.zeros(obj_patches.shape[0], dtype=int)
         for img_i in range(obj_patches.shape[0]):
             for obj_i in range(10):
@@ -197,6 +207,7 @@ if __name__ == '__main__':
         out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
         out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
         writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
+        print('wrote', 'img'+str(batch_i))
         batch_i += 1
 
     print('Total', total)

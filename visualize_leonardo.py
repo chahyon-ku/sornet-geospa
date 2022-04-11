@@ -123,4 +123,5 @@ if __name__ == '__main__':
 
     data = (img, patch_tensors, None, target)
     fig = plot(predicates, 1, data, logits)
-    plt.show()
+    #plt.show()
+    fig.savefig('visualize_leonardo.png')
