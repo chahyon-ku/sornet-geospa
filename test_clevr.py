@@ -72,10 +72,12 @@ if __name__ == '__main__':
     parser.add_argument('--d_hidden', type=int, default=512)
     parser.add_argument('--n_relation', type=int, default=4)
     # Evaluation
+    #parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
     parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
-    parser.add_argument('--batch_size', type=int, default=100)
+    #parser.add_argument('--batch_size', type=int, default=100)
+    parser.add_argument('--batch_size', type=int, default=1)
     #parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--n_worker', type=int, default=2)
+    parser.add_argument('--n_worker', type=int, default=0)
     args = parser.parse_args()
 
     data = CLEVRDataset(
@@ -99,7 +101,7 @@ if __name__ == '__main__':
     # for name, parameter in model.named_parameters():
     #     print(name, parameter.shape)
 
-    writer = tensorboardX.SummaryWriter('log/geospa_test2/' + str(int(time.time())))
+    writer = tensorboardX.SummaryWriter('log/geospa_test3/' + str(int(time.time())))
 
     correct = 0
     total = 0
@@ -162,19 +164,16 @@ if __name__ == '__main__':
         pred = logits[index].reshape(len(relations), -1)
         mask = mask[index].reshape(len(relations), -1)
         row_count = 0
-        pair_count = -1
-        for obj1_i in range(max_obj_i[0]):
-            for obj2_i in range(max_obj_i[0]):
-                if obj1_i == obj2_i:
-                    continue
-                pair_count += 1
-                # if (obj_img[32 * obj1_i:32 * (obj1_i + 1)] == numpy.array([122, 116, 104])).all()\
-                #         or (obj_img[32 * obj2_i:32 * (obj2_i + 1)] == numpy.array([122, 116, 104])).all():
-                #     continue
+        # print('len(objects)', max_obj_i[0] + 1)
+        # for rel_i in range(4):
+        #     print(numpy.array(target[rel_i]))
+        for obj1_i in range(args.max_nobj):
+            for k in range(1, args.max_nobj):
+                obj2_i = (obj1_i + k) % args.max_nobj
                 for rel_i in range(4):
-                    rel_mask = mask[rel_i][pair_count] > 0
-                    rel_pred = pred[rel_i][pair_count] > 0
-                    rel_true = target[rel_i][pair_count] > 0
+                    rel_mask = mask[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
+                    rel_pred = pred[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
+                    rel_true = target[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
                     if not rel_mask or (not rel_pred and not rel_true):
                         continue
 
@@ -199,16 +198,19 @@ if __name__ == '__main__':
         a2.axis('off')
         plt.tight_layout()
 
-        io_buffer = io.BytesIO()
+        #io_buffer = io.BytesIO()
         fig_size = fig.get_size_inches() * fig.dpi
-        fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
+        #fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
+        fig.savefig('./geospa_test_images/' + str(batch_i) + '.png', format='png', dpi=fig.dpi)
 
-        io_buffer.seek(0)
-        out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
-        out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
-        writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
+        #io_buffer.seek(0)
+        #out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
+        #out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
+        #writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
         print('wrote', 'img'+str(batch_i))
         batch_i += 1
+        if batch_i == 100:
+            break
 
     print('Total', total)
     print('Accuracy', correct / total * 100)

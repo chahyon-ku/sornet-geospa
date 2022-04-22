@@ -24,6 +24,7 @@ SOFTWARE.
 
 import argparse
 import io
+import os
 
 import h5py
 import json
@@ -38,20 +39,29 @@ import cv2
 import numpy
 
 
-with h5py.File('data/geospa/sample2.h5', 'r') as f:
-    print(f.keys())
-    print(f['000000'].keys())
-    print(f['000000']['image'])
-    img_pil = Image.open(BytesIO(numpy.array(f['000000']['image'][()])))
-    print(img_pil)
-    print(f['CLEVR_new_000000']['objects'][0])
-    print(f['CLEVR_new_000000']['relations'].keys())
-    print(f['CLEVR_new_000000']['relations']['contain'][()])
+# with h5py.File('../geospa18_exr/sample.h5', 'r') as f:
+#     # print(f.keys())
+#     # print(f['000000'].keys())
+#     # print(f['000000']['image'])
+#     os.makedirs('./train_exr_pngs', exist_ok=True)
+#     for i in range(100):
+#         scene_key = '%06d' % i
+#         print(scene_key)
+#         img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
+#         img_np = numpy.array(img_pil)
+#         #img_np[:, :, -1] = 255
+#         img_np = img_np[:,:,-1]
+#         img_pil = Image.fromarray(img_np)
+#         #img_pil = img_pil.convert('RGB')
+#         img_pil.save('./train_exr_pngs/' + scene_key + '.png', 'png')
+    # print(f['CLEVR_new_000000']['objects'][0])
+    # print(f['CLEVR_new_000000']['relations'].keys())
+    # print(f['CLEVR_new_000000']['relations']['contain'][()])
 
-    #img_np = numpy.array(img_pil.convert('RGB'), dtype=numpy.uint8)
-    #img_np = normalize_rgb(Image.open(BytesIO(f['CLEVR_new_000000']['images']['CLEVR_new_000000camera1.png'][()])).convert('RGB'))
-    #cv2.imshow('img', img_np)
-    #cv2.waitKey()
+    # img_np = numpy.array(img_pil.convert('RGB'), dtype=numpy.uint8)
+    # img_np = normalize_rgb(Image.open(BytesIO(f['000000']['image'][()])).convert('RGB'))
+    # cv2.imshow('img', img_np)
+    # cv2.waitKey()
 
 # with h5py.File('data/clevr_cogent/trainA.h5', 'r') as f:
 #     print(f['000000'].keys())
@@ -66,11 +76,11 @@ with h5py.File('data/geospa/sample2.h5', 'r') as f:
 #     print(f['large_blue_metal_cube'])
 #     print(Image.open(BytesIO(f['large_blue_metal_cube'][0])))
 #
-# with h5py.File('data/geospa/objects.h5', 'r') as f:
-#     print(f.keys())
-#     for key in f:
-#         print(f[key])
-#         img = Image.open(BytesIO(f[key][0]))
-#         print(img)
-#         cv2.imshow('img', numpy.array(img, dtype=numpy.uint8))
-#         cv2.waitKey()
+with h5py.File('data/geospa/objects.h5', 'r') as f:
+    print(f.keys())
+    for key in f:
+        print(f[key])
+        img = Image.open(BytesIO(f[key][0]))
+        print(img)
+        cv2.imshow('img', numpy.array(img, dtype=numpy.uint8))
+        cv2.waitKey()

@@ -92,14 +92,14 @@ def train(rank, args):
     #     args.max_nobj, rand_patch=False
     # )
     train_data = CLEVRDataset(
-        f'{args.data_dir}/train.h5',
-        f'{args.data_dir}/objects.h5',
+        f'{args.data_dir}/train_80000_depth.h5',
+        f'{args.data_dir}/objects_depth.h5',
         args.max_nobj, rand_patch=True
     )
 
     valid_data = CLEVRDataset(
-        f'{args.data_dir}/train.h5',
-        f'{args.data_dir}/objects.h5',
+        f'{args.data_dir}/train_10000.h5',
+        f'{args.data_dir}/objects_depth.h5',
         args.max_nobj, rand_patch=False
     )
 

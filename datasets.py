@@ -104,7 +104,7 @@ class CLEVRDataset(Dataset):
             patch_idx = 0
             if self.rand_patch:
                 patch_idx = torch.randint(len(self.obj_h5[obj]), ()).item()
-            patch = normalize_rgb(Image.open(BytesIO(self.obj_h5[obj][patch_idx])))
+            patch = normalize_rgb(Image.open(BytesIO(self.obj_h5[obj][patch_idx])).convert('RGB'))
             obj_patches.append(patch)
         for _ in range(len(obj_patches), self.max_nobj):
             obj_patches.append(torch.zeros_like(obj_patches[0]))
