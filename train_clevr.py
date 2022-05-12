@@ -34,7 +34,7 @@ import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
 
-pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90}
+pred_types = {'front': 90, 'right': 90, 'contains': 90, 'supports': 90}
 
 
 def step(data, model, head):
@@ -92,14 +92,14 @@ def train(rank, args):
     #     args.max_nobj, rand_patch=False
     # )
     train_data = CLEVRDataset(
-        f'{args.data_dir}/train_80000_depth.h5',
-        f'{args.data_dir}/objects_depth.h5',
+        f'{args.data_dir}/train.h5',
+        f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=True
     )
 
     valid_data = CLEVRDataset(
-        f'{args.data_dir}/train_10000.h5',
-        f'{args.data_dir}/objects_depth.h5',
+        f'{args.data_dir}/valA.h5',
+        f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=False
     )
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--heads', type=int, default=12)
     parser.add_argument('--d_hidden', type=int, default=512)
     # Training
-    parser.add_argument('--log_dir', type=str, default='log/geospa_train')
+    parser.add_argument('--log_dir', type=str, default='log/geospa_train_0422')
     parser.add_argument('--n_gpu', type=int, default=1)
     parser.add_argument('--port', default='12345')
     parser.add_argument('--batch_size', type=int, default=20)

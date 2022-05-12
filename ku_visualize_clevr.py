@@ -39,21 +39,21 @@ import cv2
 import numpy
 
 
-# with h5py.File('../geospa18_exr/sample.h5', 'r') as f:
-#     # print(f.keys())
-#     # print(f['000000'].keys())
-#     # print(f['000000']['image'])
-#     os.makedirs('./train_exr_pngs', exist_ok=True)
-#     for i in range(100):
-#         scene_key = '%06d' % i
-#         print(scene_key)
-#         img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
-#         img_np = numpy.array(img_pil)
-#         #img_np[:, :, -1] = 255
-#         img_np = img_np[:,:,-1]
-#         img_pil = Image.fromarray(img_np)
-#         #img_pil = img_pil.convert('RGB')
-#         img_pil.save('./train_exr_pngs/' + scene_key + '.png', 'png')
+with h5py.File('../geospa_rect_split_train.h5', 'r') as f:
+    # print(f.keys())
+    # print(f['000000'].keys())
+    # print(f['000000']['image'])
+    os.makedirs('./geospa_rect_split_train_pngs/', exist_ok=True)
+    for i in range(100):
+        scene_key = '%06d' % i
+        print(scene_key)
+        img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
+        img_np = numpy.array(img_pil)
+        img_np[:, :, -1] = 255
+        #img_np = img_np[:,:,-1]
+        img_pil = Image.fromarray(img_np)
+        #img_pil = img_pil.convert('RGB')
+        img_pil.save('./geospa_rect_split_train_pngs/' + scene_key + '.png', 'png')
     # print(f['CLEVR_new_000000']['objects'][0])
     # print(f['CLEVR_new_000000']['relations'].keys())
     # print(f['CLEVR_new_000000']['relations']['contain'][()])
@@ -64,23 +64,27 @@ import numpy
     # cv2.waitKey()
 
 # with h5py.File('data/clevr_cogent/trainA.h5', 'r') as f:
-#     print(f['000000'].keys())
-#     print(f['000000']['image'])
-#     print(f['000000']['objects'])
-#     print(f['000000']['objects'][()])
-#     print(f['000001']['relations'])
-#     print(f['000001']['relations'][()])
+    # print(len(f.keys()))
+    # print(f['000000'].keys())
+    # print(f['000000']['image'])
+    # print(f['000000']['objects'])
+    # print(f['000000']['objects'][()])
+    # print(f['000001']['relations'])
+    # print(f['000001']['relations'][()])
 
-# with h5py.File('data/clevr_cogent/objects.h5', 'r') as f:
+# with h5py.File('data/geospa_depth/objects.h5', 'r') as f:
 #     print(f.keys())
-#     print(f['large_blue_metal_cube'])
-#     print(Image.open(BytesIO(f['large_blue_metal_cube'][0])))
+#     cylinder_count = 0
+#     for k in f.keys():
+#         print(k.split('_')[2:])
+#     print(cylinder_count)
 #
-with h5py.File('data/geospa/objects.h5', 'r') as f:
-    print(f.keys())
-    for key in f:
-        print(f[key])
-        img = Image.open(BytesIO(f[key][0]))
-        print(img)
-        cv2.imshow('img', numpy.array(img, dtype=numpy.uint8))
-        cv2.waitKey()
+# with h5py.File('data/geospa_depth/objects.h5', 'r') as f:
+#     print(f.keys())
+#     for key in f:
+#         print(f[key])
+#         img_pil = Image.open(BytesIO(f[key][0]))
+#         img_np = numpy.array(img_pil, dtype=numpy.uint8)[:, :, :3]
+#         print(img_np)
+#         cv2.imshow('img', numpy.array(img_np, dtype=numpy.uint8))
+#         cv2.waitKey()

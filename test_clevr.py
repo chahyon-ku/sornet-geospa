@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 import io
+import os
 
 import numpy
 import torchvision
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     # Data
     # parser.add_argument('--data_dir', default='data/geospa/')
     # parser.add_argument('--split', default='sample_2')
-    parser.add_argument('--data_dir', default='data/geospa/')
+    parser.add_argument('--data_dir', default='data/geospa_depth_split/')
     parser.add_argument('--split', default='train')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
@@ -73,11 +74,12 @@ if __name__ == '__main__':
     parser.add_argument('--n_relation', type=int, default=4)
     # Evaluation
     #parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
-    parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
+    parser.add_argument('--checkpoint', default='log/geospa_train_split_0428/epoch_40.pth')
     #parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=1)
     #parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--n_worker', type=int, default=0)
+    parser.add_argument('--test_image_dir', default='./geospa_split_0428_train_images/')
     args = parser.parse_args()
 
     data = CLEVRDataset(
@@ -102,6 +104,7 @@ if __name__ == '__main__':
     #     print(name, parameter.shape)
 
     writer = tensorboardX.SummaryWriter('log/geospa_test3/' + str(int(time.time())))
+    os.makedirs(args.test_image_dir, exist_ok=True)
 
     correct = 0
     total = 0
@@ -179,7 +182,7 @@ if __name__ == '__main__':
 
                     rel = relations[rel_i]
                     rel_phrase = relation_phrases[rel]
-                    pred_text = '' if rel_pred else 'not '
+                    pred_text = ''# if rel_pred else 'not '
                     pred_text = pred_text + rel_phrase
                     color = (0, 0, 0)
                     if rel_pred and not rel_true: # false positive
@@ -201,7 +204,7 @@ if __name__ == '__main__':
         #io_buffer = io.BytesIO()
         fig_size = fig.get_size_inches() * fig.dpi
         #fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
-        fig.savefig('./geospa_test_images/' + str(batch_i) + '.png', format='png', dpi=fig.dpi)
+        fig.savefig(args.test_image_dir + str(batch_i) + '.png', format='png', dpi=fig.dpi)
 
         #io_buffer.seek(0)
         #out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
@@ -209,7 +212,7 @@ if __name__ == '__main__':
         #writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
         print('wrote', 'img'+str(batch_i))
         batch_i += 1
-        if batch_i == 100:
+        if batch_i == 200:
             break
 
     print('Total', total)
