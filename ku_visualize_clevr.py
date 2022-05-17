@@ -39,21 +39,22 @@ import cv2
 import numpy
 
 
-with h5py.File('../geospa_rect_split_train.h5', 'r') as f:
-    # print(f.keys())
-    # print(f['000000'].keys())
-    # print(f['000000']['image'])
-    os.makedirs('./geospa_rect_split_train_pngs/', exist_ok=True)
-    for i in range(100):
-        scene_key = '%06d' % i
-        print(scene_key)
-        img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
-        img_np = numpy.array(img_pil)
-        img_np[:, :, -1] = 255
-        #img_np = img_np[:,:,-1]
-        img_pil = Image.fromarray(img_np)
-        #img_pil = img_pil.convert('RGB')
-        img_pil.save('./geospa_rect_split_train_pngs/' + scene_key + '.png', 'png')
+with h5py.File('./data/geospa_half/geospa_half_val_default.h5', 'r') as f:
+    print(f.keys())
+    print(f['000000'].keys())
+    print(f['000000']['image'])
+    print(f['000000']['relations'])
+    # os.makedirs('./geospa_rect_split_train_pngs/', exist_ok=True)
+    # for i in range(100):
+    #     scene_key = '%06d' % i
+    #     print(scene_key)
+    #     img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
+    #     img_np = numpy.array(img_pil)
+    #     img_np[:, :, -1] = 255
+    #     #img_np = img_np[:,:,-1]
+    #     img_pil = Image.fromarray(img_np)
+    #     #img_pil = img_pil.convert('RGB')
+    #     img_pil.save('./geospa_rect_split_train_pngs/' + scene_key + '.png', 'png')
     # print(f['CLEVR_new_000000']['objects'][0])
     # print(f['CLEVR_new_000000']['relations'].keys())
     # print(f['CLEVR_new_000000']['relations']['contain'][()])

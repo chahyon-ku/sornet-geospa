@@ -34,8 +34,9 @@ import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
 
-pred_types = {'front': 90, 'right': 90, 'contains': 90, 'supports': 90}
-
+#pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90}
+#pred_types = {'front': 90, 'right': 90, 'contains': 90, 'supports': 90}
+pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90, 'can_contain': 90, 'can_support': 90, 'supports': 90, 'contains': 90}
 
 def step(data, model, head):
     img, obj_patches, target, mask = data

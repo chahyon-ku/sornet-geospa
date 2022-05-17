@@ -58,8 +58,6 @@ def log(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    # parser.add_argument('--data_dir', default='data/geospa/')
-    # parser.add_argument('--split', default='sample_2')
     parser.add_argument('--data_dir', default='data/geospa_depth_split/')
     parser.add_argument('--split', default='train')
     parser.add_argument('--max_nobj', type=int, default=10)
@@ -120,13 +118,23 @@ if __name__ == '__main__':
     #     'front': 'in front of',
     #     'behind': 'behind'
     # }
-    relations = ['front', 'right', 'contain', 'support']
-    relation_phrases = {
-        'front': 'in front of',
-        'right': 'right of',
-        'contain': 'contains',
-        'support': 'supports'
-    }
+    pred_types = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'supports', 'contains']
+    # relations = ['front', 'right', 'contain', 'support']
+    # relation_phrases = {
+    #     'front': 'in front of',
+    #     'right': 'right of',
+    #     'contain': 'contains',
+    #     'support': 'supports'
+    # }
+    relations = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'support', 'contains']
+    relation_phrases = {'left': 'left of',
+                        'right': 'right of',
+                        'front': 'front of',
+                        'behind': 'behind of',
+                        'can_contain': 'can contain',
+                        'can_support': 'can support',
+                        'supports': 'supports',
+                        'contains': 'contains'}
     for img, obj_patches, target, mask in tqdm(loader):
         img = img.cuda()
         obj_patches = obj_patches.cuda()
