@@ -58,8 +58,8 @@ def log(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/geospa_depth_split/')
-    parser.add_argument('--split', default='train')
+    parser.add_argument('--data_dir', default='data/geospa_half/')
+    parser.add_argument('--split', default='val_default')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
@@ -69,16 +69,15 @@ if __name__ == '__main__':
     parser.add_argument('--layers', type=int, default=12)
     parser.add_argument('--heads', type=int, default=12)
     parser.add_argument('--d_hidden', type=int, default=512)
-    parser.add_argument('--n_relation', type=int, default=4)
+    parser.add_argument('--n_relation', type=int, default=8)
     # Evaluation
-    #parser.add_argument('--checkpoint', default='log/log_geospa/epoch_40.pth')
-    parser.add_argument('--checkpoint', default='log/geospa_train_split_0428/epoch_40.pth')
-    #parser.add_argument('--batch_size', type=int, default=100)
-    parser.add_argument('--batch_size', type=int, default=1)
-    #parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--n_worker', type=int, default=0)
-    parser.add_argument('--test_image_dir', default='./geospa_split_0428_train_images/')
+    parser.add_argument('--checkpoint', default='log/geospa_half_train_220518/epoch_40.pth')
+    parser.add_argument('--batch_size', type=int, default=100)
+    parser.add_argument('--n_worker', type=int, default=2)
+    parser.add_argument('--test_image_dir', default='./geospa_half/val_default_tests_last4/')
     args = parser.parse_args()
+
+    os.makedirs(args.test_image_dir, exist_ok=True)
 
     data = CLEVRDataset(
         f'{args.data_dir}/{args.split}.h5',
@@ -126,7 +125,7 @@ if __name__ == '__main__':
     #     'contain': 'contains',
     #     'support': 'supports'
     # }
-    relations = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'support', 'contains']
+    relations = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'supports', 'contains']
     relation_phrases = {'left': 'left of',
                         'right': 'right of',
                         'front': 'front of',
@@ -135,6 +134,7 @@ if __name__ == '__main__':
                         'can_support': 'can support',
                         'supports': 'supports',
                         'contains': 'contains'}
+
     for img, obj_patches, target, mask in tqdm(loader):
         img = img.cuda()
         obj_patches = obj_patches.cuda()
@@ -154,73 +154,73 @@ if __name__ == '__main__':
         correct += (pred[mask] == target[mask]).sum().item()
         total += mask.sum().item()
 
-        index = 0
-        img_raw = datasets.denormalize_rgb(img[index].cpu())
-        fig, (a0, a1, a2) = plt.subplots(
-            1, 3, figsize=(15, 10), gridspec_kw={'width_ratios': [7, 2, 4]}
-        )
-        a0.imshow(img_raw)
-        a0.set_title('Input image', fontsize=18)
-        a0.axis('off')
+        for index in range(args.batch_size):
+            img_raw = datasets.denormalize_rgb(img[index].cpu())
+            fig, (a0, a1, a2) = plt.subplots(
+                1, 3, figsize=(15, 10), gridspec_kw={'width_ratios': [7, 2, 4]}
+            )
+            a0.imshow(img_raw)
+            a0.set_title('Input image', fontsize=18)
+            a0.axis('off')
 
-        obj_img = numpy.ones((320, 32, 3)).astype('uint8') * 255
-        for i in range(5):
-            obj_img[32 * (2 * i):32 * (2 * i + 1), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i]))
-            obj_img[32 * (2 * i + 1):32 * (2 * i + 2), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i + 1]))
-        a1.imshow(obj_img)
-        a1.set_title('Query Object', fontsize=18)
-        a1.axis('off')
+            obj_img = numpy.ones((320, 32, 3)).astype('uint8') * 255
+            for i in range(5):
+                obj_img[32 * (2 * i):32 * (2 * i + 1), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i]))
+                obj_img[32 * (2 * i + 1):32 * (2 * i + 2), :32] = numpy.array(datasets.denormalize_rgb(obj_patches[index][2 * i + 1]))
+            a1.imshow(obj_img)
+            a1.set_title('Query Object', fontsize=18)
+            a1.axis('off')
 
-        target = target[index].reshape(len(relations), -1)
-        pred = logits[index].reshape(len(relations), -1)
-        mask = mask[index].reshape(len(relations), -1)
-        row_count = 0
-        # print('len(objects)', max_obj_i[0] + 1)
-        # for rel_i in range(4):
-        #     print(numpy.array(target[rel_i]))
-        for obj1_i in range(args.max_nobj):
-            for k in range(1, args.max_nobj):
-                obj2_i = (obj1_i + k) % args.max_nobj
-                for rel_i in range(4):
-                    rel_mask = mask[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
-                    rel_pred = pred[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
-                    rel_true = target[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
-                    if not rel_mask or (not rel_pred and not rel_true):
-                        continue
+            this_target = target[index].reshape(len(relations), -1)
+            this_pred = logits[index].reshape(len(relations), -1)
+            this_mask = mask[index].reshape(len(relations), -1)
+            row_count = 0
+            # print('len(objects)', max_obj_i[0] + 1)
+            # for rel_i in range(4):
+            #     print(numpy.array(target[rel_i]))
+            for obj1_i in range(args.max_nobj):
+                for k in range(1, args.max_nobj):
+                    obj2_i = (obj1_i + k) % args.max_nobj
+                    for rel_i in range(4, 8):
+                        rel_mask = this_mask[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
+                        rel_pred = this_pred[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
+                        rel_true = this_target[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
+                        if not rel_mask or (not rel_pred and not rel_true):
+                            continue
 
-                    rel = relations[rel_i]
-                    rel_phrase = relation_phrases[rel]
-                    pred_text = ''# if rel_pred else 'not '
-                    pred_text = pred_text + rel_phrase
-                    color = (0, 0, 0)
-                    if rel_pred and not rel_true: # false positive
-                        color = (1, 0, 0)
-                    elif not rel_pred and rel_true: # false negative
-                        color = (0, 0, 1)
-                    a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
-                    obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
-                    obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
-                    obj1_axis.axis('off')
-                    obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
-                    obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
-                    obj2_axis.axis('off')
+                        rel = relations[rel_i]
+                        rel_phrase = relation_phrases[rel]
+                        pred_text = ''# if rel_pred else 'not '
+                        pred_text = pred_text + rel_phrase
+                        color = (0, 0, 0)
+                        if rel_pred and not rel_true: # false positive
+                            color = (1, 0, 0)
+                        elif not rel_pred and rel_true: # false negative
+                            color = (0, 0, 1)
+                        a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
+                        obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                        obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
+                        obj1_axis.axis('off')
+                        obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                        obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
+                        obj2_axis.axis('off')
 
-                    row_count += 1
-        a2.axis('off')
-        plt.tight_layout()
+                        row_count += 1
+            a2.axis('off')
+            plt.tight_layout()
 
-        #io_buffer = io.BytesIO()
-        fig_size = fig.get_size_inches() * fig.dpi
-        #fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
-        fig.savefig(args.test_image_dir + str(batch_i) + '.png', format='png', dpi=fig.dpi)
+            #io_buffer = io.BytesIO()
+            fig_size = fig.get_size_inches() * fig.dpi
+            #fig.savefig(io_buffer, format='raw', dpi=fig.dpi)
+            fig.savefig(args.test_image_dir + str(batch_i * args.batch_size + index) + '.png', format='png', dpi=fig.dpi)
+            plt.close(fig)
 
         #io_buffer.seek(0)
         #out_img = numpy.frombuffer(io_buffer.getvalue(), dtype=numpy.uint8)
         #out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
         #writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
-        print('wrote', 'img'+str(batch_i))
         batch_i += 1
-        if batch_i == 200:
+        if batch_i * args.batch_size >= 100:
             break
 
     print('Total', total)

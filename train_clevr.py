@@ -99,7 +99,7 @@ def train(rank, args):
     )
 
     valid_data = CLEVRDataset(
-        f'{args.data_dir}/valA.h5',
+        f'{args.data_dir}/val_default.h5',
         f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=False
     )
@@ -145,7 +145,7 @@ def train(rank, args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', type=str, default='data/geospa')
+    parser.add_argument('--data_dir', type=str, default='data/geospa_half/')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
