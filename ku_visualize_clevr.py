@@ -39,46 +39,56 @@ import cv2
 import numpy
 
 
-with h5py.File('./data/geospa_half/train.h5', 'r') as f:
+file_paths = ['./data/geospa_half3/val_default.h5',
+              './data/geospa_half3/val_color.h5',
+              './data/geospa_half3/val_size.h5',
+              './data/geospa_half3/val_shape.h5',
+              './data/geospa_half3/val_material.h5']
+save_paths = ['./geospa_half3/val_default_scenes/',
+              './geospa_half3/val_color_scenes/',
+              './geospa_half3/val_size_scenes/',
+              './geospa_half3/val_shape_scenes/',
+              './geospa_half3/val_default_scenes/']
+
+# for file_path, save_path in zip(file_paths, save_paths):
+#     with h5py.File(file_path, 'r') as f:
+#         # print(f.keys())
+#         # print(f['000000'].keys())
+#         # print(f['000000']['image'])
+#         # print(f['000000']['relations'])
+#         os.makedirs(save_path, exist_ok=True)
+#         for i in range(100):
+#             scene_key = '%06d' % i
+#             print(scene_key)
+#             img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
+#             img_np = numpy.array(img_pil)
+#             img_np[:, :, -1] = 255
+#             #img_np = img_np[:,:,-1]
+#             img_pil = Image.fromarray(img_np)
+#             #img_pil = img_pil.convert('RGB')
+#             img_pil.save(save_path + scene_key + '.png', 'png')
+        # print(f['CLEVR_new_000000']['objects'][0])
+        # print(f['CLEVR_new_000000']['relations'].keys())
+        # print(f['CLEVR_new_000000']['relations']['contain'][()])
+
+        # img_np = numpy.array(img_pil.convert('RGB'), dtype=numpy.uint8)
+        # img_np = normalize_rgb(Image.open(BytesIO(f['000000']['image'][()])).convert('RGB'))
+        # cv2.imshow('img', img_np)
+        # cv2.waitKey()
+
+with h5py.File('../Summer_research/output/scenes.h5', 'r') as f:
     print(f.keys())
     print(f['000000'].keys())
-    print(f['000000']['image'])
+    print(f['000000']['images'].keys())
+    print(f['000000']['images']['0'])
     print(f['000000']['relations'])
-    os.makedirs('./geospa_half_split_train_pngs/', exist_ok=True)
-    for i in range(100):
-        scene_key = '%06d' % i
-        print(scene_key)
-        img_pil = Image.open(BytesIO(numpy.array(f[scene_key]['image'][()])))
-        img_np = numpy.array(img_pil)
-        img_np[:, :, -1] = 255
-        #img_np = img_np[:,:,-1]
-        img_pil = Image.fromarray(img_np)
-        #img_pil = img_pil.convert('RGB')
-        img_pil.save('./geospa_half_split_train_pngs/' + scene_key + '.png', 'png')
-    # print(f['CLEVR_new_000000']['objects'][0])
-    # print(f['CLEVR_new_000000']['relations'].keys())
-    # print(f['CLEVR_new_000000']['relations']['contain'][()])
+    print(f['000000']['relations'].keys())
+    for key in f:
+        img_pil = Image.open(BytesIO(f[key]['images']['1'][()])).convert('RGB')
+        img_np = numpy.array(img_pil, dtype=numpy.uint8)
+        cv2.imshow('img', img_np)
+        cv2.waitKey()
 
-    # img_np = numpy.array(img_pil.convert('RGB'), dtype=numpy.uint8)
-    # img_np = normalize_rgb(Image.open(BytesIO(f['000000']['image'][()])).convert('RGB'))
-    # cv2.imshow('img', img_np)
-    # cv2.waitKey()
-
-# with h5py.File('data/clevr_cogent/trainA.h5', 'r') as f:
-    # print(len(f.keys()))
-    # print(f['000000'].keys())
-    # print(f['000000']['image'])
-    # print(f['000000']['objects'])
-    # print(f['000000']['objects'][()])
-    # print(f['000001']['relations'])
-    # print(f['000001']['relations'][()])
-
-# with h5py.File('data/geospa_depth/objects.h5', 'r') as f:
-#     print(f.keys())
-#     cylinder_count = 0
-#     for k in f.keys():
-#         print(k.split('_')[2:])
-#     print(cylinder_count)
 #
 # with h5py.File('data/geospa_depth/objects.h5', 'r') as f:
 #     print(f.keys())

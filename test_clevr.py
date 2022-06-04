@@ -71,10 +71,10 @@ if __name__ == '__main__':
     parser.add_argument('--d_hidden', type=int, default=512)
     parser.add_argument('--n_relation', type=int, default=8)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_train_220518/epoch_40.pth')
-    parser.add_argument('--batch_size', type=int, default=100)
-    parser.add_argument('--n_worker', type=int, default=2)
-    parser.add_argument('--test_image_dir', default='./geospa_half/val_default_tests_last4/')
+    parser.add_argument('--checkpoint', default='log/geospa_half_220521/epoch_40.pth')
+    parser.add_argument('--batch_size', type=int, default=20)
+    parser.add_argument('--n_worker', type=int, default=0)
+    parser.add_argument('--test_image_dir', default='./geospa_half/val_default_tests/')
     args = parser.parse_args()
 
     os.makedirs(args.test_image_dir, exist_ok=True)
@@ -174,14 +174,14 @@ if __name__ == '__main__':
             this_target = target[index].reshape(len(relations), -1)
             this_pred = logits[index].reshape(len(relations), -1)
             this_mask = mask[index].reshape(len(relations), -1)
-            row_count = 0
             # print('len(objects)', max_obj_i[0] + 1)
             # for rel_i in range(4):
             #     print(numpy.array(target[rel_i]))
+            scene_relations = {'tp': [], 'fp': [], 'fn': [], 'tn': []}
             for obj1_i in range(args.max_nobj):
                 for k in range(1, args.max_nobj):
                     obj2_i = (obj1_i + k) % args.max_nobj
-                    for rel_i in range(4, 8):
+                    for rel_i in range(0, 8):
                         rel_mask = this_mask[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
                         rel_pred = this_pred[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
                         rel_true = this_target[rel_i][(k - 1) * args.max_nobj + obj1_i] > 0
@@ -192,20 +192,60 @@ if __name__ == '__main__':
                         rel_phrase = relation_phrases[rel]
                         pred_text = ''# if rel_pred else 'not '
                         pred_text = pred_text + rel_phrase
-                        color = (0, 0, 0)
-                        if rel_pred and not rel_true: # false positive
-                            color = (1, 0, 0)
+                        if rel_pred and rel_true:
+                            scene_relations['tp'].append((pred_text, obj1_i, obj2_i))
+                        elif rel_pred and not rel_true: # false positive
+                            scene_relations['fp'].append((pred_text, obj1_i, obj2_i))
                         elif not rel_pred and rel_true: # false negative
-                            color = (0, 0, 1)
-                        a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
-                        obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
-                        obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
-                        obj1_axis.axis('off')
-                        obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
-                        obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
-                        obj2_axis.axis('off')
+                            scene_relations['fn'].append((pred_text, obj1_i, obj2_i))
+                        else:
+                            scene_relations['tn'].append((pred_text, obj1_i, obj2_i))
 
-                        row_count += 1
+            row_count = 0
+            color = (0, 0, 0)
+
+            a2.text(0.5, 1 - row_count * 0.025, 'true positives:', color=color, fontsize=12, ha='center', va='center')
+            row_count += 1
+            for pred_text, obj1_i, obj2_i in scene_relations['tp']:
+                a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
+                obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
+                obj1_axis.axis('off')
+                obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
+                obj2_axis.axis('off')
+                row_count += 1
+
+            row_count += 1
+            color = (0, 0, 0)
+            a2.text(0.5, 1 - row_count * 0.025, 'false positives:', color=color, fontsize=12, ha='center', va='center')
+            row_count += 1
+            color = (0, 0, 1)
+            for pred_text, obj1_i, obj2_i in scene_relations['fp']:
+                a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
+                obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
+                obj1_axis.axis('off')
+                obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
+                obj2_axis.axis('off')
+                row_count += 1
+
+            row_count += 1
+            color = (0, 0, 0)
+            a2.text(0.5, 1 - row_count * 0.025, 'false negatives:', color=color, fontsize=12, ha='center', va='center')
+            row_count += 1
+            color = (1, 0, 0)
+            for pred_text, obj1_i, obj2_i in scene_relations['fn']:
+                a2.text(0.5, 1 - row_count * 0.025, pred_text, color=color, fontsize=12, ha='center', va='center')
+                obj1_axis = a2.inset_axes([0.2, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj1_axis.imshow(obj_img[32 * obj1_i:32 * (obj1_i + 1)])
+                obj1_axis.axis('off')
+                obj2_axis = a2.inset_axes([0.7, 1 - row_count * 0.025 - 0.0125, 0.1, 0.025])
+                obj2_axis.imshow(obj_img[32 * obj2_i:32 * (obj2_i + 1)])
+                obj2_axis.axis('off')
+                row_count += 1
+
             a2.axis('off')
             plt.tight_layout()
 
@@ -220,7 +260,7 @@ if __name__ == '__main__':
         #out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
         #writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
         batch_i += 1
-        if batch_i * args.batch_size >= 100:
+        if batch_i * args.batch_size >= 20:
             break
 
     print('Total', total)

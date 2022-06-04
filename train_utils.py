@@ -41,7 +41,7 @@ def train_one_epoch(
     model.train()
     start = time()
     for batch_idx, data in enumerate(loader):
-        data = [d.cuda() for d in data]
+        data = [d.cuda() if d_i > 0 else [v.cuda() for v in d] for d_i, d in enumerate(data)]
         data_time += time() - start
 
         logits, loss = step_fn(data, model, head)
@@ -85,7 +85,7 @@ def eval_one_epoch(
     model.eval()
     start = time()
     for data in loader:
-        data = [d.cuda() for d in data]
+        data = [d.cuda() if d_i > 0 else [v.cuda() for v in d] for d_i, d in enumerate(data)]
         data_time += time() - start
 
         with torch.no_grad():

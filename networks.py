@@ -79,7 +79,7 @@ class EmbeddingNet(nn.Module):
     def __init__(
             self, input_dim: tuple, patch_size: int, n_objects: int,
             width: int, layers: int, heads: int
-        ):
+    ):
         super().__init__()
         self.conv1 = nn.Conv2d(
             in_channels=3, out_channels=width, kernel_size=patch_size,
@@ -107,7 +107,7 @@ class EmbeddingNet(nn.Module):
         batch_size, n_obj = objs.shape[:2]
         objs = objs.reshape(-1, *objs.shape[2:])
         objs = self.conv1(objs)
-        objs = objs.reshape(batch_size, n_obj, -1) # shape = [*, n_obj, width]
+        objs = objs.reshape(batch_size, n_obj, -1)  # shape = [*, n_obj, width]
 
         x = x + self.positional_embedding[1:]
         objs = objs + self.positional_embedding[:1]
@@ -154,3 +154,57 @@ class ReadoutNet(nn.Module):
         y += [getattr(self, f'binary{i}')(x) for i in range(self.n_binary)]
         y = torch.cat(y, dim=1).squeeze(-1)
         return y
+
+
+class EmbeddingNetMultiview(nn.Module):
+    def __init__(
+            self, input_dim: tuple, patch_size: int, n_objects: int,
+            width: int, layers: int, heads: int, n_views: int, in_channels: list
+    ):
+        super().__init__()
+        assert(n_views == len(in_channels))
+        self.conv1s = nn.ModuleList([nn.Conv2d(
+            in_channels=in_channels[i], out_channels=width, kernel_size=patch_size,
+            stride=patch_size, bias=False
+        ) for i in range(n_views)])
+
+        scale = width ** -0.5
+        self.n_views = n_views
+        self.n_patches = (input_dim[0] // patch_size) * (input_dim[1] // patch_size)
+        self.positional_embedding = nn.Parameter(scale * torch.randn(self.n_views * self.n_patches + 1, width))
+        self.ln_pre = nn.LayerNorm(width)
+
+        seq_len = self.n_patches * self.n_views + n_objects
+        attn_mask = torch.zeros(seq_len, seq_len)
+        attn_mask[:, -n_objects:] = -float("inf")
+        attn_mask.fill_diagonal_(0)
+
+        self.transformer = Transformer(width, layers, heads, attn_mask)
+        self.ln_post = nn.LayerNorm(width)
+
+    def forward(self, views: list, objs: torch.Tensor):
+        xs = []
+        for view_i in range(self.n_views):
+            x = self.conv1s[view_i](views[view_i])  # shape = [*, width, grid, grid]
+            x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+            x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+            x = x + self.positional_embedding[view_i * self.n_patches:(view_i + 1) * self.n_patches]
+            xs.append(x)
+
+        batch_size, n_obj = objs.shape[:2]
+        objs = objs.reshape(-1, *objs.shape[2:])
+        objs = self.conv1s[0](objs)
+        objs = objs.reshape(batch_size, n_obj, -1)  # shape = [*, n_obj, width]
+        objs = objs + self.positional_embedding[-1]
+        xs.append(objs)
+
+        x = torch.cat(xs, dim=1)  # shape = [*, grid ** 2 + n_obj, width]
+        x = self.ln_pre(x)
+
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        x, weights = self.transformer(x)
+
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_post(x[:, -objs.shape[1]:, :])
+
+        return x, weights

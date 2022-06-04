@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
     parser.add_argument('--data_dir', default='data/geospa_half/')
-    parser.add_argument('--split', default='valB')
+    parser.add_argument('--split', default='val_default')
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
     parser.add_argument('--obj_h', type=int, default=32)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser.add_argument('--type_emb_dim', type=int, default=0)
     parser.add_argument('--hidden_dim', type=int, default=512)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_train_220518/epoch_40.pth')
+    parser.add_argument('--checkpoint', default='log/geospa_half_220521/epoch_40.pth')
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_worker', type=int, default=1)
     parser.add_argument('--results_dir', default='./barplot_data/geospa_half/')
