@@ -30,8 +30,8 @@ from PIL import Image
 from matplotlib import pyplot as plt
 
 import datasets
-from datasets import CLEVRDataset
-from networks import EmbeddingNet, ReadoutNet
+from datasets import CLEVRMultiviewDataset
+from networks import EmbeddingNetMultiview, ReadoutNet
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import argparse
@@ -58,7 +58,7 @@ def log(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/geospa_half/')
+    parser.add_argument('--data_dir', default='data/geospa_half_2view/')
     parser.add_argument('--split', default='val_default')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
@@ -71,24 +71,24 @@ if __name__ == '__main__':
     parser.add_argument('--d_hidden', type=int, default=512)
     parser.add_argument('--n_relation', type=int, default=8)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_220521/epoch_40.pth')
-    parser.add_argument('--batch_size', type=int, default=20)
+    parser.add_argument('--checkpoint', default='log/geospa_half_1view/epoch_40.pth')
+    parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_worker', type=int, default=0)
-    parser.add_argument('--test_image_dir', default='./geospa_half/val_default_tests/')
+    parser.add_argument('--test_image_dir', default='./geospa_half_1view/val_default_tests/')
     args = parser.parse_args()
 
     os.makedirs(args.test_image_dir, exist_ok=True)
 
-    data = CLEVRDataset(
+    data = CLEVRMultiviewDataset(
         f'{args.data_dir}/{args.split}.h5',
         f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=False
     )
     loader = DataLoader(data, args.batch_size, num_workers=args.n_worker)
 
-    model = EmbeddingNet(
+    model = EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.max_nobj,
-        args.width, args.layers, args.heads
+        args.width, args.layers, args.heads, 1, [3]
     )
     head = ReadoutNet(args.width, args.d_hidden, 0, args.n_relation)
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     #     'front': 'in front of',
     #     'behind': 'behind'
     # }
-    pred_types = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'supports', 'contains']
+    pred_types = ['left', 'right', 'front', 'behind', 'contains', 'supports', 'can_contain', 'can_support']
     # relations = ['front', 'right', 'contain', 'support']
     # relation_phrases = {
     #     'front': 'in front of',
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     #     'contain': 'contains',
     #     'support': 'supports'
     # }
-    relations = ['left', 'right', 'front', 'behind', 'can_contain', 'can_support', 'supports', 'contains']
+    relations = ['left', 'right', 'front', 'behind', 'contains', 'supports', 'can_contain', 'can_support']
     relation_phrases = {'left': 'left of',
                         'right': 'right of',
                         'front': 'front of',
@@ -135,11 +135,11 @@ if __name__ == '__main__':
                         'supports': 'supports',
                         'contains': 'contains'}
 
-    for img, obj_patches, target, mask in tqdm(loader):
-        img = img.cuda()
+    for imgs, obj_patches, target, mask in tqdm(loader):
+        imgs = [img.cuda() for img in imgs]
         obj_patches = obj_patches.cuda()
         with torch.no_grad():
-            emb, attn = model(img, obj_patches)
+            emb, attn = model(imgs, obj_patches)
             logits = head(emb)
             pred = (logits > 0).int().cpu()
         target = target.int()
@@ -155,13 +155,22 @@ if __name__ == '__main__':
         total += mask.sum().item()
 
         for index in range(args.batch_size):
-            img_raw = datasets.denormalize_rgb(img[index].cpu())
-            fig, (a0, a1, a2) = plt.subplots(
-                1, 3, figsize=(15, 10), gridspec_kw={'width_ratios': [7, 2, 4]}
-            )
-            a0.imshow(img_raw)
-            a0.set_title('Input image', fontsize=18)
-            a0.axis('off')
+            imgs_raw = [datasets.denormalize_rgb(img[index].cpu()) for img in imgs]
+            #fig, (a0, a1, a2) = plt.subplots(
+            #    1, 3, figsize=(15, 10), gridspec_kw={'width_ratios': [7, 2, 4]}
+            #)
+            fig = plt.figure(figsize=(15, 10))
+            a00 = plt.subplot2grid((2, 3), (0, 0), rowspan=1)
+            # Plot 2
+            a01 = plt.subplot2grid((2, 3), (1, 0), rowspan=1)
+            a1 = plt.subplot2grid((2, 3), (0, 1), rowspan=2)
+            # Plot 3
+            a2 = plt.subplot2grid((2, 3), (0, 2), rowspan=2)
+            a00.imshow(imgs_raw[0])
+            a00.set_title('Input image', fontsize=18)
+            a00.axis('off')
+            a01.imshow(imgs_raw[1])
+            a01.axis('off')
 
             obj_img = numpy.ones((320, 32, 3)).astype('uint8') * 255
             for i in range(5):
@@ -260,7 +269,7 @@ if __name__ == '__main__':
         #out_img = numpy.reshape(out_img, (int(fig_size[1]), int(fig_size[0]), -1))
         #writer.add_image('img'+str(batch_i), out_img, dataformats='HWC')
         batch_i += 1
-        if batch_i * args.batch_size >= 20:
+        if batch_i * args.batch_size >= 100:
             break
 
     print('Total', total)
