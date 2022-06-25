@@ -21,8 +21,8 @@ import os
 
 import numpy
 
-from datasets import CLEVRDataset, build_predicates
-from networks import EmbeddingNet, ReadoutNet
+from datasets import CLEVRMultiviewDataset, build_predicates
+from networks import EmbeddingNetMultiview, ReadoutNet
 from torch.cuda.amp import autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -36,8 +36,8 @@ import numpy as np
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/geospa_half/')
-    parser.add_argument('--split', default='val_default')
+    parser.add_argument('--data_dir', default='data/geospa_half_2view/')
+    parser.add_argument('--split', default='train')
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
     parser.add_argument('--obj_h', type=int, default=32)
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     parser.add_argument('--type_emb_dim', type=int, default=0)
     parser.add_argument('--hidden_dim', type=int, default=512)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_220521/epoch_40.pth')
+    parser.add_argument('--checkpoint', default='log/geospa_half_2view/epoch_40.pth')
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_worker', type=int, default=1)
-    parser.add_argument('--results_dir', default='./barplot_data/geospa_half/')
+    parser.add_argument('--results_dir', default='./geospa_half_2view/train_bar/')
     args = parser.parse_args()
 
     objects = [f'object{i:02d}' for i in range(args.n_objects)]
@@ -73,16 +73,16 @@ if __name__ == '__main__':
         else:
             types.add(pref)
 
-    data = CLEVRDataset(
+    data = CLEVRMultiviewDataset(
         f'{args.data_dir}/{args.split}.h5',
         f'{args.data_dir}/objects.h5',
         args.n_objects, rand_patch=False
     )
     loader = DataLoader(data, args.batch_size, num_workers=args.n_worker)
 
-    model = EmbeddingNet(
+    model = EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.n_objects,
-        args.width, args.layers, args.heads
+        args.width, args.layers, args.heads, 2, [3, 3]
     )
     head = ReadoutNet(args.width, args.hidden_dim, len(pred_cfg['unary']), len(pred_cfg['binary']))
 
@@ -95,11 +95,11 @@ if __name__ == '__main__':
     predictions = []
     targets = []
     masks = []
-    for img, obj_patches, target, mask in tqdm(loader):
-        img = img.cuda()
+    for imgs, obj_patches, target, mask in tqdm(loader):
+        imgs = [img.cuda() for img in imgs]
         obj_patches = obj_patches.cuda()
         with torch.no_grad():
-            emb, attn = model(img, obj_patches)
+            emb, attn = model(imgs, obj_patches)
             logits = head(emb)
         predictions.append((logits > 0).cpu().numpy())
         targets.append(target.bool().numpy())

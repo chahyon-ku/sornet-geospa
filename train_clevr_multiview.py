@@ -82,28 +82,28 @@ def train(rank, args):
     dist.init_process_group('gloo', rank=rank, world_size=args.n_gpu)
     torch.cuda.set_device(rank)
 
-    # train_data = datasets.CLEVRMultiviewDataset(
-    #     f'{args.data_dir}/train.h5',
-    #     f'{args.data_dir}/objects.h5',
-    #     args.max_nobj, rand_patch=True
-    # )
-    #
-    # valid_data = datasets.CLEVRDataset(
-    #     f'{args.data_dir}/val_default.h5',
-    #     f'{args.data_dir}/objects.h5',
-    #     args.max_nobj, rand_patch=False
-    # )
     train_data = datasets.CLEVRMultiviewDataset(
-        f'../Summer_research/output/scenes.h5',
+        f'{args.data_dir}/train.h5',
         f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=True
     )
-
+    
     valid_data = datasets.CLEVRMultiviewDataset(
-        f'../Summer_research/output/scenes.h5',
+        f'{args.data_dir}/val_default.h5',
         f'{args.data_dir}/objects.h5',
         args.max_nobj, rand_patch=False
     )
+    #train_data = datasets.CLEVRMultiviewDataset(
+    #    f'../Summer_research/output/scenes.h5',
+    #    f'{args.data_dir}/objects.h5',
+    #    args.max_nobj, rand_patch=True
+    #)
+
+    #valid_data = datasets.CLEVRMultiviewDataset(
+    #    f'../Summer_research/output/scenes.h5',
+    #    f'{args.data_dir}/objects.h5',
+    #    args.max_nobj, rand_patch=False
+    #)
 
     model = networks.EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.max_nobj,
@@ -111,7 +111,7 @@ def train(rank, args):
     )
     head = ReadoutNet(args.width, args.d_hidden, 0, len(pred_types))
     optimizer = torch.optim.Adam(
-        list(model.parameters()) + list(head.parameters()), args.lr
+            list(model.parameters()) + list(head.parameters()), args.lr
     )
 
     init_epoch = 0
@@ -146,11 +146,11 @@ def train(rank, args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', type=str, default='data/geospa_half/')
+    parser.add_argument('--data_dir', type=str, default='data/geospa_half_2view1/')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
-    parser.add_argument('--n_worker', type=int, default=2)
+    parser.add_argument('--n_worker', type=int, default=5)
     # Model
     parser.add_argument('--patch_size', type=int, default=32)
     parser.add_argument('--width', type=int, default=768)
@@ -158,10 +158,10 @@ if __name__ == '__main__':
     parser.add_argument('--heads', type=int, default=12)
     parser.add_argument('--d_hidden', type=int, default=512)
     # Training
-    parser.add_argument('--log_dir', type=str, default='log/geospa_train_0422')
+    parser.add_argument('--log_dir', type=str, default='log/geospa_half_2view/')
     parser.add_argument('--n_gpu', type=int, default=1)
-    parser.add_argument('--port', default='12345')
-    parser.add_argument('--batch_size', type=int, default=10)
+    parser.add_argument('--port', default='12346')
+    parser.add_argument('--batch_size', type=int, default=40)
     parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--n_epoch', type=int, default=40)
     parser.add_argument('--print_freq', type=int, default=50)
