@@ -2,11 +2,15 @@
 
 ## Introduction
 
-## Methods
+## Data
 
-### Model
+### Definition
 
-### Dataset
+### Generation
+
+### Distribution
+
+## Model
 
 ### Implementation
 
