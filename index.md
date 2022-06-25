@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## SORNet-GeoSpa
 
 You can use the [editor on GitHub](https://github.com/chahyon1998/sornet-geospa/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
