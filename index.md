@@ -68,26 +68,48 @@ It’s possible for object A to be supported on object B such that object A can 
 
 ### 1-view Results
 
-![1 View Bar](images/2viewbar.PNG)
-
 #### Qualitative Analysis
 
 ![1 View Example 1](images/1view1.PNG)
+
 ![1 View Example 2](images/1view2.PNG)
 
 #### Quantitative Analysis
+
+Scene Accuracy:
+Example: 10 “contains” 7 were predicted true. 10 “contains” 5 were predicted true -> scene accuracy of the model is 60%
+Only considers unmasked predicates
+
+Distribution of the predicates:
+Contains, supports, and can_contain are heavily biased, as about 90% of the predicates are “negative.”
+
+Sensitivity to unseen attributes
+Color, material, and size similarly affected the accuracy of predictions.
+
+![1 View Bar](images/2viewbar.PNG)
 
 ### 2-view Results
 
 #### Qualitative Analysis
 
 ![2 View Example 1](images/2view1.PNG)
+
+Here, the 2 view models is performing better than the 1-view model as expected.
+The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
+This is expected, as one cannot be sure whether the occluded object is inside the brown, behind the cyan, or behind the other purple object, just by looking at the first view.
+However, it is worth noting that the 1-view model still correctly predicts that the small purple object is inside the brown cube container.
+Ideally, if the model predicted that the purple object was inside the brown container, then it should have inferred the spacial relations more accurately, as the small purple object is strictly contained inside the container.
+
 ![2 View Example 2](images/2view2.PNG)
 ![2 View Example 3](images/2view3.PNG)
+
+Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view model.
 
 #### Quantitative Analysis
 
 ![2 View Bar](images/2viewbar.PNG)
+
+1 view had occlusions, leading to these errors, but 2view could resolve that
 
 ### Kitchen Objects
 
