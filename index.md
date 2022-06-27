@@ -26,6 +26,8 @@ For each scene a random number between three and six objects is chosen. For each
 
 Once all objects have been placed in a scene, the ground truth predicates are generated and the scene is saved. 
 
+![GeoSpa Shapes](images/geospa-shapes.PNG)
+
 ### Predicates
 
 There are a total of 8 predicates included in the ground truth data: left, right, in front, behind, contains, supports, can contain, and can support. The left, right, in front, and behind predicates are generated the same as CLEVR and indicate the directional relationships between object pairs.  The contains and supports predicates indicate the current orientation of objects within the scene based on the placement type (independent, contained, supported). 
@@ -49,11 +51,12 @@ Its possible for object A to be contained inside of object B such that object A 
 **Can-support:**
 It’s possible for object A to be supported on object B such that object A can be moved onto object B without disturbing any other objects in the scene. Any objects already supported above object B in the scene must be able to be on object B along with object A.
 
-
-
 ### Distribution
 
 ## Model
+
+![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.PNG)
+![SORNet Readout Network](images/sornet-readout.PNG)
 
 ### Implementation
 
@@ -65,7 +68,12 @@ It’s possible for object A to be supported on object B such that object A can 
 
 ### 1-view Results
 
+![1 View Bar](images/2viewbar.PNG)
+
 #### Qualitative Analysis
+
+![1 View Example 1](images/1view1.PNG)
+![1 View Example 2](images/1view2.PNG)
 
 #### Quantitative Analysis
 
@@ -73,7 +81,13 @@ It’s possible for object A to be supported on object B such that object A can 
 
 #### Qualitative Analysis
 
+![2 View Example 1](images/2view1.PNG)
+![2 View Example 2](images/2view2.PNG)
+![2 View Example 3](images/2view3.PNG)
+
 #### Quantitative Analysis
+
+![2 View Bar](images/2viewbar.PNG)
 
 ### Kitchen Objects
 
