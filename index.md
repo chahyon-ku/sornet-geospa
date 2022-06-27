@@ -26,7 +26,7 @@ For each scene a random number between three and six objects is chosen. For each
 
 Once all objects have been placed in a scene, the ground truth predicates are generated and the scene is saved. 
 
-![GeoSpa Shapes](images/geospa-shapes.PNG)
+![GeoSpa Shapes](images/geospa-shapes.png)
 
 ### Predicates
 
@@ -55,8 +55,8 @@ It’s possible for object A to be supported on object B such that object A can 
 
 ## Model
 
-![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.PNG)
-![SORNet Readout Network](images/sornet-readout.PNG)
+![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.png)
+![SORNet Readout Network](images/sornet-readout.png)
 
 ### Implementation
 
@@ -70,9 +70,9 @@ It’s possible for object A to be supported on object B such that object A can 
 
 #### Qualitative Analysis
 
-![1 View Example 1](images/1view1.PNG)
+![1 View Example 1](images/1view1.png)
 
-![1 View Example 2](images/1view2.PNG)
+![1 View Example 2](images/1view2.png)
 
 #### Quantitative Analysis
 
@@ -86,13 +86,13 @@ Contains, supports, and can_contain are heavily biased, as about 90% of the pred
 Sensitivity to unseen attributes
 Color, material, and size similarly affected the accuracy of predictions.
 
-![1 View Bar](images/2viewbar.PNG)
+![1 View Bar](images/2viewbar.png)
 
 ### 2-view Results
 
 #### Qualitative Analysis
 
-![2 View Example 1](images/2view1.PNG)
+![2 View Example 1](images/2view1.png)
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
@@ -100,14 +100,14 @@ This is expected, as one cannot be sure whether the occluded object is inside th
 However, it is worth noting that the 1-view model still correctly predicts that the small purple object is inside the brown cube container.
 Ideally, if the model predicted that the purple object was inside the brown container, then it should have inferred the spacial relations more accurately, as the small purple object is strictly contained inside the container.
 
-![2 View Example 2](images/2view2.PNG)
-![2 View Example 3](images/2view3.PNG)
+![2 View Example 2](images/2view2.png)
+![2 View Example 3](images/2view3.png)
 
 Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view model.
 
 #### Quantitative Analysis
 
-![2 View Bar](images/2viewbar.PNG)
+![2 View Bar](images/2viewbar.png)
 
 1 view had occlusions, leading to these errors, but 2view could resolve that
 
