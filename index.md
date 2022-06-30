@@ -2,13 +2,13 @@
 
 ## Introduction
 
-## Data
+# Dataset
 
-### Introduction
+### Related Work
 
 There have been a range of impressive datasets for spacial reasoning models, including datasets using static image for directional relationships (CLEVR), videos for temporal and causal reasoning (CLEVERER), and videos including long term temporal and containment reasoning (CATER). Our diagnostic dataset is most similar to CLEVR, using static images with a fixed set of shapes, sizes, and materials. It includes ground truth information about the objects in each scene and the relative directional relationships between those objects (left, right, in front, behind). Our dataset improves on the previous examples by including new more complex ways for objects to be oriented in the scenes and more ground truth information for the relationships between objects. In addition to being placed “independently” on the table, objects can be contained within eachother, or supported on top of one another. In addition, we include the ground truth information for the possible relationships between objects; we store information about if objects could be contained or supported by other objects in the scene based on their relative sizes and shapes. The contain and support predicates are defined and discussed more below.
 
-### Definitions
+## Geometric Relationship Definitions
 
 There are guidelines for how objects can be oriented within the scene depending on their size and shape. We came up with three distinct terms to describe the different methods of placing objects: independent, contained, and supported. Any object can be placed independently, meaning the object is placed on the table not touching any other objects. The contained and supported relationships are defined below:
 
@@ -17,8 +17,29 @@ an object (containee) is able to be contained by another object (container) when
 
 **Supported:**
  an object (supportee) can be supported by another object (supporter) if the cross section of the supporter’s bounding box along the table’s plane can fully contain the cross section of the supportee’s bounding box.
+ 
+## Objects
 
-### Generation 
+In our primary dataset there are 14 unique shapes ranging in 3 different sizes for a total of 42 different shapes. There are also 2 different materials and 8 different colors.
+
+### Shapes
+
+![GeoSpa Shapes](images/geospa-shapes.png)
+
+### Materials
+
+The two different materials are metal and rubber. The difference is that the rubber material is matte and non-reflective while the metal material is highly reflective.
+
+### Colors
+
+The 8 colors included in the main dataset are gray, red, blue, green, brow, purple, cyan, and yellow.
+
+### Other objects
+
+The scene generation code is designed so that is also very easy to change the properties for objects used in the scenes. A single file contains a list of all shapes, colors, materials, and sizes to use during generation. In order to change the objects in scenes a user only needs to create new Blender objects and change the parameters file for scene image generation. To test our model on novel scenes, we also created a kitchen dataset with the same colors and materials, but new objects
+
+
+## Generation 
 
 Our scene generation process is very similar to that of CLEVR. To generate a scene, we start with a hand-designed default scene containing 6 cameras, a flat gray plane to act as the table, and lighting. Each scene uses the same base table, cameras, and lights, but for each new scene, random jitter is added to the camera and light positions.
 
@@ -26,11 +47,9 @@ For each scene a random number between three and six objects is chosen. For each
 
 Once all objects have been placed in a scene, the ground truth predicates are generated and the scene is saved. 
 
-![GeoSpa Shapes](images/geospa-shapes.png)
+## Relationships
 
-### Predicates
-
-There are a total of 8 predicates included in the ground truth data: left, right, in front, behind, contains, supports, can contain, and can support. The left, right, in front, and behind predicates are generated the same as CLEVR and indicate the directional relationships between object pairs.  The contains and supports predicates indicate the current orientation of objects within the scene based on the placement type (independent, contained, supported). 
+There are a total of 8 relationships included in the ground truth data: left, right, in front, behind, contains, supports, can contain, and can support. The left, right, in front, and behind predicates are generated the same as CLEVR and indicate the directional relationships between object pairs.  The contains and supports predicates indicate the current orientation of objects within the scene based on the placement type (independent, contained, supported). 
 
 The can-contain and can-support predicates represent the potential for objects to fit contained inside of or supported on top of other objects based on the scene, including considering any objects already contained or supported. For both the can-contain and can-support relationships, object A can be contained/supported by object B if object A can be moved to fulfil the definition of the contain/support relationship (defined above) without disturbing any other objects in the scene. Some potential cases if object A can be contained/supported in object B are outlined below.
 
@@ -51,9 +70,13 @@ Its possible for object A to be contained inside of object B such that object A 
 **Can-support:**
 It’s possible for object A to be supported on object B such that object A can be moved onto object B without disturbing any other objects in the scene. Any objects already supported above object B in the scene must be able to be on object B along with object A.
 
-### Distribution
+---
 
-## Model
+# Model
+
+### Related Work
+
+For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/) design with slight modifications to accept our predicates and multiple camera views. To learn more about the implementation details of SORNet visit the dedicated website.
 
 ![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.png)
 ![SORNet Readout Network](images/sornet-readout.png)
@@ -63,6 +86,9 @@ It’s possible for object A to be supported on object B such that object A can 
 ### Training and Hyperparameter
 
 ### Testing and Experiment Setup
+
+
+
 
 ## Results
 
