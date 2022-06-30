@@ -1,10 +1,19 @@
-# GSORNet
+### Table of Contents
+1. [Introduction](#1-introduction)
+2. [Dataset](#2-dataset)
+3. [Model](#3-model)
+4. [Results](#4-results)
+5. [Conclusion](#5-conclusion)
 
-## Introduction
+# 1. Introduction
 
-# Dataset
+This project has the goal of determining how the [SORNet](https://wentaoyuan.github.io/sornet/) model would perform on a new dataset which includes geometric reasoning in addition to spacial reasoning. SORNet was initially designed to learn about and infer object spacial relationships, and could determine the relative positions between objects in an RGB image scene. It performed well on existing datasets such as CLEVR, which contain computer generated scenes with a variety of objects placed on a table. 
 
-### Related Work
+We wanted to test the SORNet architecture's ability to conduct more complex geometric reasoning about the objects, the existing relationships between objects, and the potential relationships which could exist. Geometric reasoning includes understanding containment and support of other objects, and understanding if it's possible to contain one object's geometry within another object, or if it's possible for one object to stably support another. In this page we go over the dataset we created, how we applied the new dataset to the SORNet model, and the results we found from our tests.
+
+# 2. Dataset
+
+## Related Work
 
 There have been a range of impressive datasets for spacial reasoning models, including datasets using static image for directional relationships (CLEVR), videos for temporal and causal reasoning (CLEVERER), and videos including long term temporal and containment reasoning (CATER). Our diagnostic dataset is most similar to CLEVR, using static images with a fixed set of shapes, sizes, and materials. It includes ground truth information about the objects in each scene and the relative directional relationships between those objects (left, right, in front, behind). Our dataset improves on the previous examples by including new more complex ways for objects to be oriented in the scenes and more ground truth information for the relationships between objects. In addition to being placed “independently” on the table, objects can be contained within eachother, or supported on top of one another. In addition, we include the ground truth information for the possible relationships between objects; we store information about if objects could be contained or supported by other objects in the scene based on their relative sizes and shapes. The contain and support predicates are defined and discussed more below.
 
@@ -36,7 +45,9 @@ The 8 colors included in the main dataset are gray, red, blue, green, brow, purp
 
 ### Other objects
 
-The scene generation code is designed so that is also very easy to change the properties for objects used in the scenes. A single file contains a list of all shapes, colors, materials, and sizes to use during generation. In order to change the objects in scenes a user only needs to create new Blender objects and change the parameters file for scene image generation. To test our model on novel scenes, we also created a kitchen dataset with the same colors and materials, but new objects
+The scene generation code is designed so that is also very easy to change the properties for objects used in the scenes. A single file contains a list of all shapes, colors, materials, and sizes to use during generation. In order to change the objects in scenes a user only needs to create new Blender objects and change the parameters file for scene image generation. To test our model on novel scenes, we also created a kitchen dataset with the same colors and materials, but new objects with more complex geometry than the existing images to resemble real life objects found in a kitchen.
+
+**TODO: include kitchen images**
 
 
 ## Generation 
@@ -72,33 +83,35 @@ It’s possible for object A to be supported on object B such that object A can 
 
 ---
 
-# Model
+# 3. Model
 
 ### Related Work
 
 For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/) design with slight modifications to accept our predicates and multiple camera views. To learn more about the implementation details of SORNet visit the dedicated website.
 
-![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.png)
-![SORNet Readout Network](images/sornet-readout.png)
+| ![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.png) | ![SORNet Readout Network](images/sornet-readout.png) |
+| -------------------------------------------------------- | -------------------------------------------------------- |
 
-### Implementation
+*Images above from [SORNet paper](https://arxiv.org/abs/2109.03891)*
 
 ### Training and Hyperparameter
 
+**TODO**
+
 ### Testing and Experiment Setup
 
+**TODO**
 
+---
 
+# 4. Results
 
-## Results
-
-### 1-view Results
+## 1-view Results
 
 #### Qualitative Analysis
 
-![1 View Example 1](images/1view1.png)
-
-![1 View Example 2](images/1view2.png)
+| ![1 View Example 1](images/1view1.png) | ![1 View Example 2](images/1view2.png) |
+| --- | --- |
 
 #### Quantitative Analysis
 
@@ -114,7 +127,7 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 ![1 View Bar](images/2viewbar.png)
 
-### 2-view Results
+## 2-view Results
 
 #### Qualitative Analysis
 
@@ -141,9 +154,13 @@ Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view mo
 
 #### Qualitative Analysis
 
+**TODO**
+
 #### Quantitative Analysis
 
-## Conclusion
+**TODO**
+
+# 5. Conclusion
 
 ### Larger Implications
 
