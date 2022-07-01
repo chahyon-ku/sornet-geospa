@@ -1,3 +1,11 @@
+---
+carousels:
+  - images: 
+    - image: images/2view1.png
+    - image: images/2view2.png
+    - image: images/2view3.png
+---
+
 ### Table of Contents
 1. [Introduction](#1-introduction)
 2. [Dataset](#2-dataset)
