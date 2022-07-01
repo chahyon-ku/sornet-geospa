@@ -1,6 +1,9 @@
 ---
 carousels:
   - images: 
+    - image: images/sornet-transformer.png
+    - image: images/sornet-readout.png
+  - images: 
     - image: images/1view1.png
     - image: images/1view2.png
   - images: 
@@ -100,8 +103,7 @@ It’s possible for object A to be supported on object B such that object A can 
 
 For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/) design with slight modifications to accept our predicates and multiple camera views. To learn more about the implementation details of SORNet visit the dedicated website.
 
-| ![SORNet Trnasformer (Embedding) Network](images/sornet-transformer.png) | ![SORNet Readout Network](images/sornet-readout.png) |
-| -------------------------------------------------------- | -------------------------------------------------------- |
+{% include carousel.html height="50" unit="%" number="1" %}
 
 *Images above from [SORNet paper](https://arxiv.org/abs/2109.03891)*
 
@@ -121,7 +123,7 @@ For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/)
 
 #### Qualitative Analysis
 
-{% include carousel.html height="50" unit="%" number="1" %}
+{% include carousel.html height="50" unit="%" number="2" %}
 
 #### Quantitative Analysis
 
@@ -141,7 +143,7 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 #### Qualitative Analysis
 
-{% include carousel.html height="50" unit="%" number="2" %}
+{% include carousel.html height="50" unit="%" number="3" %}
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
