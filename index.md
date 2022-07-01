@@ -161,16 +161,6 @@ Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view mo
 
 1 view had occlusions, leading to these errors, but 2view could resolve that
 
-### Kitchen Objects
-
-#### Qualitative Analysis
-
-**TODO**
-
-#### Quantitative Analysis
-
-**TODO**
-
 # 5. Conclusion
 
 ### Larger Implications
