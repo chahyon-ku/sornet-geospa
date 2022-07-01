@@ -131,16 +131,17 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 #### Qualitative Analysis
 
-![2 View Example 1](images/2view1.png)
+{% slider %}
+  ![2 View Example 1](images/2view1.png)
+  ![2 View Example 2](images/2view2.png)
+  ![2 View Example 3](images/2view3.png)
+{% endslider %}
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
 This is expected, as one cannot be sure whether the occluded object is inside the brown, behind the cyan, or behind the other purple object, just by looking at the first view.
 However, it is worth noting that the 1-view model still correctly predicts that the small purple object is inside the brown cube container.
 Ideally, if the model predicted that the purple object was inside the brown container, then it should have inferred the spacial relations more accurately, as the small purple object is strictly contained inside the container.
-
-![2 View Example 2](images/2view2.png)
-![2 View Example 3](images/2view3.png)
 
 Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view model.
 
