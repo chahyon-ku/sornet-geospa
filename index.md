@@ -1,6 +1,6 @@
 ---
 title: "SORNet on GeoSpa Data"
-subtitle: "Chahyon Ku, Noah Ponto, Muru Zhang, Rachel Soto-Garcia, Karthik Desingh"
+description: "Chahyon Ku, Noah Ponto, Muru Zhang, Rachel Soto-Garcia, Karthik Desingh"
 carousels:
   - images: 
     - image: images/sornet-transformer.png
