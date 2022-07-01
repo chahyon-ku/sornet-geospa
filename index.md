@@ -131,11 +131,7 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 #### Qualitative Analysis
 
-{% slider %}
-  ![2 View Example 1](images/2view1.png)
-  ![2 View Example 2](images/2view2.png)
-  ![2 View Example 3](images/2view3.png)
-{% endslider %}
+{% include carousel.html height="50" unit="%" duration="7" number="1" %}
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.

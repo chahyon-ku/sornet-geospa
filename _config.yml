@@ -1,2 +1,7 @@
 theme: jekyll-theme-cayman
 iis_slider_array: []
+carousels:
+  - images:
+    - image: images/2view1.png
+    - image: images/2view2.png
+    - image: images/2view3.png
