@@ -1,6 +1,9 @@
 ---
 carousels:
   - images: 
+    - image: images/1view1.png
+    - image: images/1view2.png
+  - images: 
     - image: images/2view1.png
     - image: images/2view2.png
     - image: images/2view3.png
@@ -118,8 +121,7 @@ For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/)
 
 #### Qualitative Analysis
 
-| ![1 View Example 1](images/1view1.png) | ![1 View Example 2](images/1view2.png) |
-| --- | --- |
+{% include carousel.html height="50" unit="%" number="1" %}
 
 #### Quantitative Analysis
 
@@ -139,7 +141,7 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 #### Qualitative Analysis
 
-{% include carousel.html height="50" unit="%" duration="7" number="1" %}
+{% include carousel.html height="50" unit="%" number="2" %}
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
