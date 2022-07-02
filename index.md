@@ -9,6 +9,9 @@ carousels:
     - image: images/1view1.png
     - image: images/1view2.png
   - images: 
+    - image: images/kitchen1.png
+    - image: images/kitchen2.png
+  - images: 
     - image: images/2view1.png
     - image: images/2view2.png
     - image: images/2view3.png
@@ -105,7 +108,7 @@ It’s possible for object A to be supported on object B such that object A can 
 
 For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/) design with slight modifications to accept our predicates and multiple camera views. To learn more about the implementation details of SORNet visit the dedicated website.
 
-{% include carousel.html height="50" unit="%" number="1" %}
+{% include carousel.html unit="%" number="1" %}
 
 *Images above from [SORNet paper](https://arxiv.org/abs/2109.03891)*
 
@@ -123,11 +126,15 @@ For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/)
 
 ## 1-view Results
 
-#### Qualitative Analysis
+### Qualitative Analysis
 
-{% include carousel.html height="50" unit="%" number="2" %}
+#### Validation Default
+{% include carousel.html unit="%" number="2" %}
 
-#### Quantitative Analysis
+#### Validation Kitchen
+{% include carousel.html unit="%" number="3" %}
+
+### Quantitative Analysis
 
 Scene Accuracy:
 Example: 10 “contains” 7 were predicted true. 10 “contains” 5 were predicted true -> scene accuracy of the model is 60%
@@ -143,9 +150,9 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 ## 2-view Results
 
-#### Qualitative Analysis
+### Qualitative Analysis
 
-{% include carousel.html height="50" unit="%" number="3" %}
+{% include carousel.html unit="%" number="4" %}
 
 Here, the 2 view models is performing better than the 1-view model as expected.
 The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
@@ -155,7 +162,7 @@ Ideally, if the model predicted that the purple object was inside the brown cont
 
 Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view model.
 
-#### Quantitative Analysis
+### Quantitative Analysis
 
 ![2 View Bar](images/2viewbar.png)
 
