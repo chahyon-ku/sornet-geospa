@@ -36,8 +36,8 @@ import numpy as np
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/geospa_half_2view/')
-    parser.add_argument('--split', default='val_default')
+    parser.add_argument('--data_dir', default='data/geospa_2view/')
+    parser.add_argument('--split', default='train')
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
     parser.add_argument('--obj_h', type=int, default=32)
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     parser.add_argument('--type_emb_dim', type=int, default=0)
     parser.add_argument('--hidden_dim', type=int, default=512)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_2view/epoch_40.pth')
+    parser.add_argument('--checkpoint', default='log/geospa_1view/epoch_80.pth')
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_worker', type=int, default=1)
-    parser.add_argument('--results_dir', default='./geospa_half_2view/val_default_bar/')
+    parser.add_argument('--results_dir', default='./geospa_1view/train_bar/')
     args = parser.parse_args()
 
     objects = [f'object{i:02d}' for i in range(args.n_objects)]
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     model = EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.n_objects,
-        args.width, args.layers, args.heads, 2, [3, 3]
+        args.width, args.layers, args.heads, 1, [3]
     )
     head = ReadoutNet(args.width, args.hidden_dim, len(pred_cfg['unary']), len(pred_cfg['binary']))
 

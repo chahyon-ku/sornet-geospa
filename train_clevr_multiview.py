@@ -37,7 +37,8 @@ import torch.multiprocessing as mp
 
 #pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90}
 #pred_types = {'front': 90, 'right': 90, 'contains': 90, 'supports': 90}
-pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90, 'contains': 90, 'supports': 90, 'can_contain': 90, 'can_support': 90}
+#pred_types = {'left': 90, 'right': 90, 'front': 90, 'behind': 90, 'contains': 90, 'supports': 90, 'can_contain': 90, 'can_support': 90}
+pred_types = {'front': 90, 'behind': 90, 'right': 90, 'left': 90, 'contains': 90, 'supports': 90, 'can_contain': 90, 'can_support': 90}
 
 def step(data, model, head):
     img, obj_patches, target, mask = data
@@ -107,7 +108,7 @@ def train(rank, args):
 
     model = networks.EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.max_nobj,
-        args.width, args.layers, args.heads, n_views=2, in_channels=[3, 3]
+        args.width, args.layers, args.heads, n_views=1, in_channels=[3]#, 3]
     )
     head = ReadoutNet(args.width, args.d_hidden, 0, len(pred_types))
     optimizer = torch.optim.Adam(
@@ -146,7 +147,7 @@ def train(rank, args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', type=str, default='data/geospa_half_2view1/')
+    parser.add_argument('--data_dir', type=str, default='data/geospa_2view/')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
     parser.add_argument('--img_w', type=int, default=480)
@@ -158,12 +159,12 @@ if __name__ == '__main__':
     parser.add_argument('--heads', type=int, default=12)
     parser.add_argument('--d_hidden', type=int, default=512)
     # Training
-    parser.add_argument('--log_dir', type=str, default='log/geospa_half_2view/')
+    parser.add_argument('--log_dir', type=str, default='log/geospa_1view/')
     parser.add_argument('--n_gpu', type=int, default=1)
     parser.add_argument('--port', default='12346')
     parser.add_argument('--batch_size', type=int, default=40)
     parser.add_argument('--lr', type=float, default=0.0001)
-    parser.add_argument('--n_epoch', type=int, default=40)
+    parser.add_argument('--n_epoch', type=int, default=80)
     parser.add_argument('--print_freq', type=int, default=50)
     parser.add_argument('--eval_freq', type=int, default=2)
     parser.add_argument('--save_freq', type=int, default=10)

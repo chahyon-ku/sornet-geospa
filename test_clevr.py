@@ -58,7 +58,7 @@ def log(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Data
-    parser.add_argument('--data_dir', default='data/geospa_half_2view/')
+    parser.add_argument('--data_dir', default='data/geospa_2view2/')
     parser.add_argument('--split', default='val_default')
     parser.add_argument('--max_nobj', type=int, default=10)
     parser.add_argument('--img_h', type=int, default=320)
@@ -71,10 +71,10 @@ if __name__ == '__main__':
     parser.add_argument('--d_hidden', type=int, default=512)
     parser.add_argument('--n_relation', type=int, default=8)
     # Evaluation
-    parser.add_argument('--checkpoint', default='log/geospa_half_1view/epoch_40.pth')
+    parser.add_argument('--checkpoint', default='log/geospa_2view/epoch_80.pth')
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_worker', type=int, default=0)
-    parser.add_argument('--test_image_dir', default='./geospa_half_1view/val_default_tests/')
+    parser.add_argument('--test_image_dir', default='./geospa_2view/val_default_tests/')
     args = parser.parse_args()
 
     os.makedirs(args.test_image_dir, exist_ok=True)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     model = EmbeddingNetMultiview(
         (args.img_w, args.img_h), args.patch_size, args.max_nobj,
-        args.width, args.layers, args.heads, 1, [3]
+        args.width, args.layers, args.heads, 2, [3, 3]
     )
     head = ReadoutNet(args.width, args.d_hidden, 0, args.n_relation)
 
