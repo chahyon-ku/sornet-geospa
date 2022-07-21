@@ -128,25 +128,68 @@ For our training model we use the [SORNet](https://wentaoyuan.github.io/sornet/)
 
 ### Qualitative Analysis
 
-#### Validation Default
-{% include carousel.html unit="%" number="2" %}
+![1 View 1](images/1view1.png)
 
-#### Validation Kitchen
-{% include carousel.html unit="%" number="3" %}
+This is a scene from the validation-default split, evaluated on the 1view model.
+This means that all objects were seen during training, even tough this exact scene was not, and only the “original view” on the top was used to predict the predicates.
+On the left are the input images, and the second, top-view is just shown for your reference.
+In the middle are the canonical views of the query objects.
+You can see that there are three objects in the scene: a small elliptical cylinder, a rectangle elliptical container, and a teal rectangle.
+On the right are the list of predicates.
+For example, the tiny purple is on the right of the bigger rectangle, and predicted as such, so it is a “true positive”
+Another example is that the small purple cylinder “can support” the teal rectangle, because its top has a larger surface area than the supported.
+You can see that the 12 “true” predicates are all predicted correctly, with no false positives or false negatives.
+
+![1 View 2](images/1view2.png)
+
+This is an example from validation-color: all objects are of same shapes, material, and sizes, except the colors red, green, blue, and gray are not seen during training.
+We can see that more predicates are guessed incorrectly.
+To specify, it is confusing the location of the red object, because it is completely occluded from the scene.
+Just looking at the original view, it is impossible to tell whether the red object is inside either of the containers or behind either of the containers.
+Hence, the model incorrectly predicts many predicates related to the location and containment of the red object.
 
 ### Quantitative Analysis
 
-Scene Accuracy:
-Example: 10 “contains” 7 were predicted true. 10 “contains” 5 were predicted true -> scene accuracy of the model is 60%
-Only considers unmasked predicates
-
-Distribution of the predicates:
-Contains, supports, and can_contain are heavily biased, as about 90% of the predicates are “negative.”
-
-Sensitivity to unseen attributes
-Color, material, and size similarly affected the accuracy of predictions.
-
 ![1 View Bar](images/2viewbar.png)
+
+The first and most intuitive metric is the scene accuracy, which is the average accuracy of each predicate over the dataset.
+For example, if 7 out of 10 “contains” predicates were predicted true in a scene and  4 out of 5 “contains” predicates were predicted true in another, the scene accuracy of the model over these two scenes is 75%.
+
+Starting from the left are metrics for all predicates, the spatial predicates (front, behind, left, right), and the geometric predicates (contain, support, can…).
+Each of the bars indicate the 1 view and the majority model evaluated on each of the datasets.
+Majority models always choose the majority pick (1 if there are more true predicates then false, and 0 if there are more false predicates then true) for each predicate, and is meant to show the distribution of the predicates.
+
+Starting with all predicates, one can see that the model achieves 99% accuracy over the training data, 95% accuracy over validation default with only seen objects, and 80 to 90% accuracy for validation sets.
+The right-most two bars indicate that validation default had 68.6% of the predicates as “false” while validation kitchen had 71.8% of the predicates as “false.”
+
+Moving on to spatial predicates, one can see that performance is quite consistent over all spatial predicates.
+There’s close to 50/50 split in the predicates, the model does worst in validation_op with about 70% accuracy.
+We hypothesize that this is because different unseen attributes result in different kinds of error and those errors are accumulated if there are multiple unseen attributes present like in the case of validation op.
+Most other validation sets stay around 80% to 85% range, with the color and material having the biggest impact in performance.
+
+Performance over geometric predicates vary, because they each have different distributions and assumptions.
+Contains is one of the easiest predicates to predict, because around 95% of the predicates are false.
+Intuitively, out of all pairs of objects in a scene, there can only be so many containment relationships.
+Hence, the models perform well in terms of accuracy, but a better metric to evaluate these results would be the F1 score, which takes into account the distribution of the predicates by weighing the false and true positives accordingly.
+We can still observe that the accuracy of the 1view model is better than that of the majority model.
+
+The trend of geometric predicates are a little more obvious when looking at the can-predicates, because they are more evenly distributed between true and false.
+While validation op is still the worst performing, validation_size is not too far from validation_op.
+We hypothesize that this is because the model memorizes the size difference between small and medium objects, so it is not able to generalize well to large unseen objects.
+
+Scene all accuracy is the proportion of scenes where all of the predicates were predicted correctly.
+For example, if 3 out of 4 was predicted correctly, and 2 out of 2 were predicted correctly, the scene all accuracy would be 50%.
+The motivation is to see how many scenes are “perfectly” predicted and applied to robotics applications.
+Scene all accuracy mostly amplifies the differences and trends from scene accuracy, so we do not see new trends arise.
+However, it is worth noting that even with new scenes consisting of only seen objects, only 32.6% of the scenes are predicted perfectly.
+Considering that there are uniform 2~6 objects in a scene, the median of the number of predicates in each scene range from 2 * 1 * 8 = 16 to 6 * 5 * 8 = 240.
+
+The f1-scores also show similar trends, but with a couple extra takeaways.
+The f1-scores for majority models are undefined because it only predicts a single value.
+The f1 scores for contains-predicates of validation kitchen are also 0, because no kitchen obj
+It is also worth noting that even though the accuracies of geometric predicates were extremely high in the 90% range, the f1-scores are relatively low.
+As there are more “false” predicates for geometric predicates, the predictions have many more false negatives, leading to lower recall and f1-scores.
+
 
 ## 2-view Results
 
@@ -154,24 +197,56 @@ Color, material, and size similarly affected the accuracy of predictions.
 
 {% include carousel.html unit="%" number="4" %}
 
-Here, the 2 view models is performing better than the 1-view model as expected.
-The 1 view model incorrectly predicts the small purple object’s spacial relations, because the model is unsure of that object’s position.
-This is expected, as one cannot be sure whether the occluded object is inside the brown, behind the cyan, or behind the other purple object, just by looking at the first view.
-However, it is worth noting that the 1-view model still correctly predicts that the small purple object is inside the brown cube container.
-Ideally, if the model predicted that the purple object was inside the brown container, then it should have inferred the spacial relations more accurately, as the small purple object is strictly contained inside the container.
+The setup is almost identical with the 1view results, with 2 input images and a few query object patches.
+On the left are the results from the 1 view model, which only uses the “original” view in the top, and on the right are the results from the 2-view model, which uses both the views.
 
-Rare occasion (1 in 10?) when the 2-view model performs worse than the 1-view model.
+![2 View 1](images/2view1.png)
+
+Here, the 2 view models is performing better than the 1-view model as expected.
+The 1 view model incorrectly predicts the small teal cylinder’s spacial relations, because the model is unsure of that object’s position.
+This is expected, as one cannot be sure whether the occluded object is inside the brown, behind the yellow, or behind the yellow object, just by looking at the first view.
+The 2-view model can eliminate this issue by looking at the top view to figure out the teal object’s location.
+
+![2 View 2](images/2view2.png)
+
+This is another example where the 2-view model performs better than the 1-view model.
+The yellow container and the teal contained are both completely occluded, so the 1-view model is unable to predict its predicates, while the 2-view model can.
+
+![2 View 3](images/2view3.png)
+
+However, it is also worth noting that the 2-view model does not always perform better.
+In this example, adding the top view actually introduces more confusions in comparing the position of the yellow container with those of other objects.
+Instead of predicting that the yellow container is in front of the brown cylinder, it predicts otherwise.
+We have not conducted further experiments to identify the reason for this, but hypothesize that the 2-view model learns more complex reasoning and hence requires more epochs to learn the correct relation.
 
 ### Quantitative Analysis
 
 ![2 View Bar](images/2viewbar.png)
 
-1 view had occlusions, leading to these errors, but 2view could resolve that
+These are the metrics for the 1view and 2view models as shown in the legends.
+The marked bars represent the results of the 2-view model and the evaluation on a dataset are put side by side.
+
+As you can see, the scene accuracy of the 2-view model is in general about 1% higher than that of the 1-view model.
+However, the accuracy for validation_kitchen is actually lower for the 2-view model, hinting that while 2-view model has potential to do better, it might be overfitting or memorizing the input objects more than the 1-view model.
+It is also worth noting that for some geometric predicates such as the can contain and can support, the 2-view model does worse on the validation_size, showing that the 2-view model may be overfitting to the size of the objects.
+
+As with the 1-view results, the scene all accuracy amplifies the differences shown in scene accuracy.
+In the case of f1 scores, the 2-view model does worse than the 1-view model for most predicates when evaluated on validation_kitchen.
 
 # 5. Conclusion
 
 ### Larger Implications
 
+From these results, our conclusions are two-fold.
+First, we observed that the SORNet architecture with the ViT embedding network and fully connected readout networks succeeded in generalizing over unseen objects.
+While performance did drop for more unseen attributes, SORNet was still able to query the scene with unseen objects to find their relations.
+Second, while the 2-view mode was able to see occluded objects and perform slightly better, it may be overfitting to the training set more than the 1-view model.
+
 ### Future Work
+
+Having only the bare minimum set of attributes, it is very possible that the model was not able to generalize to the huge feature space that it might encounter in real-life situation.
+Hence, we can increase the number of colors, sizes, and shapes to see if the model can generalize better when given more diverse set of objects.
+Fine-tune on a smaller set of scenes with unseen objects to see if the trained model can be quickly fine-tuned to other settings
+Test how well the model generalizes to realistic scenes -> is there any sim-to-real gap?
 
 ## References
