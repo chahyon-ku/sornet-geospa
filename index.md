@@ -1,6 +1,8 @@
 ---
-title: "SORNet on GeoSpa Data"
-description: "Chahyon Ku, Noah Ponto, Muru Zhang, Rachel Soto-Garcia, Karthik Desingh"
+title: "Evaluating SORNet on a Geometric and Spatial (GeoSpa) Reasoning Dataset."
+A Technical Report
+description: "Chahyon Ku<sup>1</sup>, Noah Ponto<sup>1</sup>, Muru Zhang<sup>1</sup>, Rachel Soto-Garcia<sup>2</sup>, Karthik Desingh<sup>1</sup>"
+1 University of Washington 2 Rensselaer Polytechnic Institute
 carousels:
   - images: 
     - image: images/sornet-transformer.png
@@ -250,3 +252,17 @@ Fine-tune on a smaller set of scenes with unseen objects to see if the trained m
 Test how well the model generalizes to realistic scenes -> is there any sim-to-real gap?
 
 ## References
+
+Johnson, J., Hariharan, B., Van Der Maaten, L., Fei-Fei, L., Lawrence Zitnick, C. and Girshick, R., 2017. Clevr: A diagnostic dataset for compositional language and elementary visual reasoning. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 2901-2910).
+
+Yi, K., Gan, C., Li, Y., Kohli, P., Wu, J., Torralba, A. and Tenenbaum, J.B., 2019. Clevrer: Collision events for video representation and reasoning. arXiv preprint arXiv:1910.01442.
+
+Girdhar, R. and Ramanan, D., 2019. CATER: A diagnostic dataset for Compositional Actions and TEmporal Reasoning. arXiv preprint arXiv:1910.04744.
+
+Yuan, W., Paxton, C., Desingh, K. and Fox, D., 2022, January. SORNet: Spatial object-centric representations for sequential manipulation. In Conference on Robot Learning (pp. 148-157). PMLR.
+
+## Acknowledgements
+
+This work was partially supported by **UW Allen School Postdoc Research Award** and **REU summer 2021 as part of NSF NRI Award 2024057**. We would like to thank Wentao Yuan, Chris Paxton, and Professor Dieter Fox for their feedback and support during the project.
+
+We would like to thank Wentao Yuan, Chris Paxton, and Professor Dieter Fox for their feedback and support during the project.
