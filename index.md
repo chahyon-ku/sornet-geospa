@@ -66,8 +66,7 @@ The 8 colors included in the main dataset are gray, red, blue, green, brow, purp
 
 The scene generation code is designed so that is also very easy to change the properties for objects used in the scenes. A single file contains a list of all shapes, colors, materials, and sizes to use during generation. In order to change the objects in scenes a user only needs to create new Blender objects and change the parameters file for scene image generation. To test our model on novel scenes, we also created a kitchen dataset with the same colors and materials, but new objects with more complex geometry than the existing images to resemble real life objects found in a kitchen.
 
-**TODO: include kitchen images**
-
+![Kitchen Objects](images/kitchen_objects.PNG)
 
 ## Generation 
 
