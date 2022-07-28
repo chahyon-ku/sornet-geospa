@@ -1,10 +1,6 @@
 ---
-title: "Evaluating SORNet on a Geometric and Spatial (GeoSpa) Reasoning Dataset.
-
-A Technical Report"
-description: "Chahyon Ku<sup>1</sup>, Noah Ponto<sup>1</sup>, Muru Zhang<sup>1</sup>, Rachel Soto-Garcia<sup>2</sup>, Karthik Desingh<sup>1</sup>
-
-<sup>1</sup>University of Washington <sup>2</sup>Rensselaer Polytechnic Institute"
+title: "Evaluating SORNet on a Geometric and Spatial (GeoSpa) Reasoning Dataset.<br>A Technical Report"
+description: "Chahyon Ku<sup>1</sup>, Noah Ponto<sup>1</sup>, Muru Zhang<sup>1</sup>, Rachel Soto-Garcia<sup>2</sup>, Karthik Desingh<sup>1</sup><br><sup>1</sup>University of Washington <sup>2</sup>Rensselaer Polytechnic Institute"
 carousels:
   - images: 
     - image: images/sornet-transformer.png
